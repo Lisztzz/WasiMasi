@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "WasiMasi API",
+    "description": "Coleccion para probar el backend de WasiMasi (Sprint 1). Variable base_url = http://localhost:8080/api. Los requests de registro y publicacion guardan buscadorId, anfitrionId y publicacionId en variables de coleccion; ejecutar en orden: Auth -> Usuarios -> Publicaciones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080/api", "type": "string" },
+    { "key": "buscadorId", "value": "", "type": "string" },
+    { "key": "anfitrionId", "value": "", "type": "string" },
+    { "key": "publicacionId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar Buscador (US01)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('buscadorId', json.id);",
+                  "  pm.test('registrado (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
+                  "} else {",
+                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202099999\",\n  \"universidad\": \"UPC\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+          }
+        },
+        {
+          "name": "Registrar Anfitrion (US01)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('anfitrionId', json.id);",
+                  "  pm.test('registrado (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
+                  "} else {",
+                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Diaz\",\n  \"correo\": \"carlos.anfitrion@gmail.com\",\n  \"password\": \"clave123\",\n  \"rol\": \"ANFITRION\",\n  \"documentoIdentidad\": \"75011234\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+          }
+        },
+        {
+          "name": "Registrar Buscador - correo duplicado (US01, 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202099999\",\n  \"universidad\": \"UPC\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+          }
+        },
+        {
+          "name": "Registrar Buscador - correo no institucional (US01, 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pedro Lopez\",\n  \"correo\": \"pedro@gmail.com\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202088888\",\n  \"universidad\": \"UPC\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+          }
+        },
+        {
+          "name": "Login Buscador (US02)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - password incorrecta (US02, 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"incorrecta\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Simular verificacion del Anfitrion (US03/US04)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/{{anfitrionId}}/simular-verificacion",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", "{{anfitrionId}}", "simular-verificacion"]
+            }
+          }
+        },
+        {
+          "name": "Ver Anfitrion (US05)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/{{anfitrionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["usuarios", "{{anfitrionId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publicaciones",
+      "item": [
+        {
+          "name": "Publicar habitacion (US06)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('publicacionId', json.id);",
+                  "  pm.test('publicada (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
+                  "} else {",
+                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anfitrionId\": {{anfitrionId}},\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\"https://example.com/foto1.jpg\"]\n}"
+            },
+            "url": { "raw": "{{base_url}}/publicaciones", "host": ["{{base_url}}"], "path": ["publicaciones"] }
+          }
+        },
+        {
+          "name": "Publicar sin fotos (US06, 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anfitrionId\": {{anfitrionId}},\n  \"zona\": \"Pueblo Libre\",\n  \"precio\": 500,\n  \"descripcion\": \"Sin fotos, deberia fallar\",\n  \"fotos\": []\n}"
+            },
+            "url": { "raw": "{{base_url}}/publicaciones", "host": ["{{base_url}}"], "path": ["publicaciones"] }
+          }
+        },
+        {
+          "name": "Buscar por zona y presupuesto (US08)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=300&precioMax=800",
+              "host": ["{{base_url}}"],
+              "path": ["publicaciones"],
+              "query": [
+                { "key": "zona", "value": "Jesus Maria" },
+                { "key": "precioMin", "value": "300" },
+                { "key": "precioMax", "value": "800" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar - presupuesto invertido (US08, 400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=800&precioMax=300",
+              "host": ["{{base_url}}"],
+              "path": ["publicaciones"],
+              "query": [
+                { "key": "zona", "value": "Jesus Maria" },
+                { "key": "precioMin", "value": "800" },
+                { "key": "precioMax", "value": "300" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver detalle de publicacion (US11)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["publicaciones", "{{publicacionId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
