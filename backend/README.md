@@ -64,10 +64,3 @@ habitacion), **US08** (buscar por zona/presupuesto) y **US11** (ver detalle).
   falla, pero la publicacion se guarda como `BORRADOR` con una advertencia.
 - Buscar con presupuesto minimo mayor al maximo → 400.
 - Errores en formato JSON estandar: `{timestamp, status, error, message}`.
-
-## Nota sobre la verificacion de esta version
-No se pudo verificar la compilacion con `mvn compile` en el entorno donde se
-generaron estos archivos porque no tenia salida a internet hacia Maven
-Central. El codigo fue revisado a mano con cuidado, pero el primer `mvn
-compile` / `Reload Maven Project` real debe hacerse aqui, en IntelliJ, donde
-si hay acceso a internet. Si sale algun error, compartelo para corregirlo.
