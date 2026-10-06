@@ -6,6 +6,7 @@ import com.wasimasi.api.dto.RegistroRequestDTO;
 import com.wasimasi.api.dto.UsuarioResponseDTO;
 import com.wasimasi.api.exception.BadRequestException;
 import com.wasimasi.api.exception.ConflictException;
+import com.wasimasi.api.exception.ForbiddenException;
 import com.wasimasi.api.exception.ResourceNotFoundException;
 import com.wasimasi.api.exception.UnauthorizedException;
 import com.wasimasi.api.mapper.UsuarioMapper;
@@ -13,8 +14,10 @@ import com.wasimasi.api.model.EstadoVerificacion;
 import com.wasimasi.api.model.RolUsuario;
 import com.wasimasi.api.model.Usuario;
 import com.wasimasi.api.repository.UsuarioRepository;
+import com.wasimasi.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -32,6 +35,8 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Value("${wasimasi.dominios-institucionales}")
     private String dominiosInstitucionalesRaw;
@@ -48,8 +53,8 @@ public class UsuarioService {
         Usuario usuario = Usuario.builder()
                 .nombre(request.getNombre())
                 .correo(request.getCorreo())
-                // TODO: reemplazar por hash real (ej. BCrypt) cuando se implemente la seguridad definitiva.
-                .password(request.getPassword())
+                // La contrasena se guarda hasheada con BCrypt, nunca en texto plano.
+                .password(passwordEncoder.encode(request.getPassword()))
                 .rol(request.getRol())
                 .codigoEstudiante(request.getCodigoEstudiante())
                 .universidad(request.getUniversidad())
@@ -63,12 +68,15 @@ public class UsuarioService {
 
     public LoginResponseDTO login(LoginRequestDTO request) {
         Usuario usuario = usuarioRepository.findByCorreo(request.getCorreo())
-                .filter(u -> u.getPassword().equals(request.getPassword()))
+                .filter(u -> passwordEncoder.matches(request.getPassword(), u.getPassword()))
                 .orElseThrow(() -> new UnauthorizedException("Correo o contrasena incorrectos"));
 
         boolean requiereVerificacion = usuario.getEstadoVerificacion() == EstadoVerificacion.PENDIENTE;
 
         return LoginResponseDTO.builder()
+                .token(jwtService.generarToken(usuario))
+                .tipoToken("Bearer")
+                .expiraEnSegundos(jwtService.getExpiracionSegundos())
                 .usuario(usuarioMapper.toResponseDTO(usuario))
                 .requiereVerificacion(requiereVerificacion)
                 .build();
@@ -80,7 +88,10 @@ public class UsuarioService {
      * el equipo de moderacion. Por ahora, este endpoint simula ese
      * resultado directamente para poder avanzar con el resto del flujo.
      */
-    public UsuarioResponseDTO simularVerificacion(Long usuarioId) {
+    public UsuarioResponseDTO simularVerificacion(Long usuarioId, Long usuarioAutenticadoId) {
+        if (!usuarioId.equals(usuarioAutenticadoId)) {
+            throw new ForbiddenException("Solo puedes verificar tu propia cuenta");
+        }
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontro el usuario con id " + usuarioId));
 
