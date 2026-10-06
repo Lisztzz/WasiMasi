@@ -1,0 +1,145 @@
+erDiagram
+    usuarios {
+        BIGSERIAL id PK
+        VARCHAR nombre "NOT NULL"
+        VARCHAR correo UK "NOT NULL"
+        VARCHAR password "NOT NULL, hash BCrypt"
+        VARCHAR rol "BUSCADOR | ANFITRION"
+        VARCHAR codigo_estudiante "solo BUSCADOR"
+        VARCHAR universidad "solo BUSCADOR"
+        VARCHAR documento_identidad "solo ANFITRION"
+        VARCHAR estado_verificacion "PENDIENTE | VERIFICADO | RECHAZADO"
+        TIMESTAMP fecha_creacion "NOT NULL"
+    }
+    solicitudes_verificacion {
+        BIGSERIAL id PK
+        BIGINT usuario_id FK
+        VARCHAR tipo
+        VARCHAR estado
+        VARCHAR codigo_verificacion
+        VARCHAR url_documento
+        VARCHAR motivo_rechazo
+        TIMESTAMP fecha_solicitud
+        TIMESTAMP fecha_revision
+    }
+    viviendas {
+        BIGSERIAL id PK
+        BIGINT anfitrion_id FK
+        VARCHAR nombre
+        VARCHAR direccion_referencial
+    }
+    publicaciones {
+        BIGSERIAL id PK
+        BIGINT anfitrion_id FK "NOT NULL"
+        BIGINT vivienda_id FK "NULL"
+        VARCHAR zona "NOT NULL"
+        NUMERIC precio "NUMERIC(10,2) NOT NULL"
+        VARCHAR descripcion "VARCHAR(1000)"
+        DOUBLE latitud
+        DOUBLE longitud
+        VARCHAR estado "BORRADOR | ACTIVA | PAUSADA | OCUPADA"
+        TIMESTAMP fecha_publicacion "NOT NULL"
+        TIMESTAMP fecha_ocupacion
+    }
+    publicacion_fotos {
+        BIGINT publicacion_id FK "NOT NULL"
+        VARCHAR url_foto
+    }
+    condiciones_convivencia {
+        BIGSERIAL id PK
+        BIGINT publicacion_id FK
+        VARCHAR tipo
+        VARCHAR valor
+    }
+    registros_busqueda {
+        BIGSERIAL id PK
+        BIGINT buscador_id FK
+        VARCHAR zona
+        NUMERIC precio_min
+        NUMERIC precio_max
+        TIMESTAMP fecha
+    }
+    solicitudes_visita {
+        BIGSERIAL id PK
+        BIGINT publicacion_id FK
+        BIGINT buscador_id FK
+        TIMESTAMP fecha_hora_visita
+        VARCHAR mensaje_presentacion
+        VARCHAR estado
+        TIMESTAMP fecha_solicitud
+    }
+    conversaciones {
+        BIGSERIAL id PK
+        VARCHAR tipo "DIRECTA | GRUPAL"
+        VARCHAR estado "ABIERTA | CERRADA"
+        BIGINT publicacion_id FK "NULL"
+        BIGINT vivienda_id FK "NULL"
+        TIMESTAMP fecha_creacion
+    }
+    conversacion_participantes {
+        BIGINT conversacion_id PK, FK
+        BIGINT usuario_id PK, FK
+        TIMESTAMP fecha_union
+        TIMESTAMP ultima_lectura
+    }
+    mensajes {
+        BIGSERIAL id PK
+        BIGINT conversacion_id FK
+        BIGINT emisor_id FK
+        TEXT contenido
+        VARCHAR estado
+        TIMESTAMP fecha_envio
+    }
+    notificaciones {
+        BIGSERIAL id PK
+        BIGINT usuario_id FK
+        VARCHAR tipo
+        VARCHAR contenido
+        BOOLEAN leida
+        TIMESTAMP fecha_creacion
+    }
+    consultas_agente_ia {
+        BIGSERIAL id PK
+        BIGINT usuario_id FK
+        TEXT instruccion
+        VARCHAR intencion_detectada
+        TEXT accion_propuesta
+        VARCHAR estado
+        TIMESTAMP fecha_creacion
+        TIMESTAMP fecha_expiracion
+    }
+    terminos_servicio {
+        BIGSERIAL id PK
+        VARCHAR version UK
+        TEXT contenido
+        TIMESTAMP fecha_publicacion
+    }
+    aceptaciones_terminos {
+        BIGINT usuario_id PK, FK
+        BIGINT terminos_id PK, FK
+        TIMESTAMP fecha_aceptacion
+    }
+
+    usuarios ||--o{ solicitudes_verificacion : "solicita"
+    usuarios ||--o{ viviendas : "administra"
+    usuarios ||--o{ publicaciones : "publica"
+    viviendas |o--o{ publicaciones : "agrupa"
+    publicaciones ||--|{ publicacion_fotos : "tiene"
+    publicaciones ||--o{ condiciones_convivencia : "define"
+    usuarios ||--o{ registros_busqueda : "realiza"
+    usuarios ||--o{ solicitudes_visita : "solicita"
+    publicaciones ||--o{ solicitudes_visita : "recibe"
+    publicaciones |o--o{ conversaciones : "origina"
+    viviendas |o--o{ conversaciones : "grupo de"
+    conversaciones ||--|{ conversacion_participantes : "incluye"
+    usuarios ||--o{ conversacion_participantes : "participa"
+    conversaciones ||--o{ mensajes : "contiene"
+    usuarios ||--o{ mensajes : "envia"
+    usuarios ||--o{ notificaciones : "recibe"
+    usuarios ||--o{ consultas_agente_ia : "consulta"
+    usuarios ||--o{ aceptaciones_terminos : "acepta"
+    terminos_servicio ||--o{ aceptaciones_terminos : "registra"
+
+    style usuarios fill:#DCEBFF,stroke:#1168BD,stroke-width:2px
+    style publicaciones fill:#DCEBFF,stroke:#1168BD,stroke-width:2px
+    style publicacion_fotos fill:#DCEBFF,stroke:#1168BD,stroke-width:2px
