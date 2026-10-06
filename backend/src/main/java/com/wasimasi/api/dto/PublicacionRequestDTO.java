@@ -11,15 +11,16 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** Datos de entrada para US06 - Publicar una habitacion. */
+/**
+ * Datos de entrada para US06 - Publicar una habitacion.
+ * El anfitrion NO se envia en el body: se toma del usuario autenticado (JWT),
+ * asi nadie puede publicar a nombre de otro.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PublicacionRequestDTO {
-
-    @NotNull(message = "El id del anfitrion es obligatorio")
-    private Long anfitrionId;
 
     @NotBlank(message = "La zona es obligatoria")
     private String zona;

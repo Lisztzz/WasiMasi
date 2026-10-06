@@ -28,10 +28,14 @@ public class PublicacionService {
     private final UsuarioRepository usuarioRepository;
     private final PublicacionMapper publicacionMapper;
 
-    public PublicacionResponseDTO publicar(PublicacionRequestDTO request) {
-        Usuario anfitrion = usuarioRepository.findById(request.getAnfitrionId())
+    /**
+     * @param anfitrionId id del usuario autenticado (viene del JWT, no del body).
+     *                    El rol ANFITRION ya fue validado por SecurityConfig.
+     */
+    public PublicacionResponseDTO publicar(Long anfitrionId, PublicacionRequestDTO request) {
+        Usuario anfitrion = usuarioRepository.findById(anfitrionId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "No se encontro el anfitrion con id " + request.getAnfitrionId()));
+                        "No se encontro el anfitrion con id " + anfitrionId));
 
         if (request.getFotos() == null || request.getFotos().isEmpty()) {
             throw new BadRequestException("Agrega al menos una foto para publicar");
