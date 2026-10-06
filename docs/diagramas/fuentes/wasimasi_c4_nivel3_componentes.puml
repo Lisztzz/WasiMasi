@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Web Service - Diagrama de componentes (C4 nivel 3)
+
+Container(webapp, "Web App", "Contenedor: Angular, TypeScript, Angular Material", "(Planificado) Interfaz web")
+ContainerDb(db, "Base de datos", "PostgreSQL", "Usuarios y publicaciones")
+
+Container_Boundary(api, "Web Service") {
+    Component(authCtrl, "AuthController", "Spring MVC REST Controller (/auth)", "Registro y login")
+    Component(usuarioCtrl, "UsuarioController", "Spring MVC REST Controller (/usuarios)", "Consulta de usuario y simulación de verificación")
+    Component(pubCtrl, "PublicacionController", "Spring MVC REST Controller (/publicaciones)", "Publicar, buscar y ver detalle")
+
+    Component(usuarioSvc, "UsuarioService", "Spring Service", "Reglas de registro, login y verificación")
+    Component(pubSvc, "PublicacionService", "Spring Service", "Reglas de publicación y búsqueda")
+
+    Component(usuarioMap, "UsuarioMapper", "MapStruct", "Convierte Usuario a DTO")
+    Component(pubMap, "PublicacionMapper", "MapStruct", "Convierte Publicacion a DTO")
+
+    Component(usuarioRepo, "UsuarioRepository", "Spring Data JPA", "Acceso a la tabla usuarios")
+    Component(pubRepo, "PublicacionRepository", "Spring Data JPA", "Acceso a la tabla publicaciones")
+
+    Component(errHandler, "GlobalExceptionHandler", "Spring ControllerAdvice", "Errores en formato JSON estándar")
+}
+
+Rel(webapp, authCtrl, "Llama", "REST/JSON")
+Rel(webapp, usuarioCtrl, "Llama", "REST/JSON")
+Rel(webapp, pubCtrl, "Llama", "REST/JSON")
+
+Rel(authCtrl, usuarioSvc, "Usa")
+Rel(usuarioCtrl, usuarioSvc, "Usa")
+Rel(pubCtrl, pubSvc, "Usa")
+
+Rel(usuarioSvc, usuarioRepo, "Usa")
+Rel(usuarioSvc, usuarioMap, "Usa")
+Rel(pubSvc, pubRepo, "Usa")
+Rel(pubSvc, usuarioRepo, "Usa")
+Rel(pubSvc, pubMap, "Usa")
+
+Rel(usuarioRepo, db, "Lee y escribe", "JPA/JDBC")
+Rel(pubRepo, db, "Lee y escribe", "JPA/JDBC")
+@enduml
