@@ -1,0 +1,154 @@
+classDiagram
+direction TB
+
+class Usuario {
+  -Long id
+  -String nombre
+  -String correo
+  -String password
+  -RolUsuario rol
+  -String codigoEstudiante
+  -String universidad
+  -String documentoIdentidad
+  -EstadoVerificacion estadoVerificacion
+  -LocalDateTime fechaCreacion
+  +estaVerificado() boolean
+  +esAnfitrion() boolean
+  +tieneCorreoInstitucional(dominios) boolean
+}
+
+class SolicitudVerificacion {
+  -Long id
+  -TipoVerificacion tipo
+  -EstadoVerificacion estado
+  -String codigoVerificacion
+  -String urlDocumento
+  -String motivoRechazo
+  -LocalDateTime fechaSolicitud
+  -LocalDateTime fechaRevision
+  +aprobar() void
+  +rechazar(motivo) void
+  +reenviar() void
+}
+
+class Vivienda {
+  -Long id
+  -String nombre
+  -String direccionReferencial
+  +habitacionesDisponibles() int
+}
+
+class Publicacion {
+  -Long id
+  -String zona
+  -BigDecimal precio
+  -String descripcion
+  -List~String~ fotos
+  -Double latitud
+  -Double longitud
+  -EstadoPublicacion estado
+  -LocalDateTime fechaPublicacion
+  -LocalDateTime fechaOcupacion
+  +activar() void
+  +pausar() void
+  +marcarOcupada() void
+  +reactivar() void
+  +cumpleCondiciones(condiciones) boolean
+}
+
+class CondicionConvivencia {
+  -Long id
+  -TipoCondicion tipo
+  -String valor
+}
+
+class RegistroBusqueda {
+  -Long id
+  -String zona
+  -BigDecimal precioMin
+  -BigDecimal precioMax
+  -LocalDateTime fecha
+}
+
+class SolicitudVisita {
+  -Long id
+  -LocalDateTime fechaHoraVisita
+  -String mensajePresentacion
+  -EstadoSolicitudVisita estado
+  -LocalDateTime fechaSolicitud
+  +confirmar() void
+  +rechazar() void
+  +retirar() void
+  +estaVigente() boolean
+}
+
+class Conversacion {
+  -Long id
+  -TipoConversacion tipo
+  -EstadoConversacion estado
+  -LocalDateTime fechaCreacion
+  +agregarParticipante(usuario) void
+  +cerrar() void
+}
+
+class Mensaje {
+  -Long id
+  -String contenido
+  -EstadoMensaje estado
+  -LocalDateTime fechaEnvio
+  +marcarLeido() void
+}
+
+class Notificacion {
+  -Long id
+  -TipoNotificacion tipo
+  -String contenido
+  -boolean leida
+  -LocalDateTime fechaCreacion
+  +marcarLeida() void
+}
+
+class ConsultaAgenteIA {
+  -Long id
+  -String instruccion
+  -String intencionDetectada
+  -String accionPropuesta
+  -EstadoAccionIA estado
+  -LocalDateTime fechaCreacion
+  -LocalDateTime fechaExpiracion
+  +confirmar() void
+  +cancelar() void
+  +expirar() void
+}
+
+class TerminosServicio {
+  -Long id
+  -String version
+  -String contenido
+  -LocalDateTime fechaPublicacion
+}
+
+class AceptacionTerminos {
+  -LocalDateTime fechaAceptacion
+}
+
+Usuario "1" --> "0..*" SolicitudVerificacion : solicita
+Usuario "1" --> "0..*" Vivienda : administra
+Usuario "1" --> "0..*" Publicacion : publica
+Vivienda "0..1" o-- "1..*" Publicacion : agrupa
+Publicacion "1" *-- "0..*" CondicionConvivencia : define
+Usuario "1" --> "0..*" RegistroBusqueda : realiza
+Usuario "1" --> "0..*" SolicitudVisita : solicita
+Publicacion "1" --> "0..*" SolicitudVisita : recibe
+Conversacion "0..*" o-- "2..*" Usuario : participantes
+Conversacion "0..*" --> "0..1" Publicacion : sobre
+Conversacion "0..*" --> "0..1" Vivienda : grupo de
+Conversacion "1" *-- "0..*" Mensaje : contiene
+Usuario "1" --> "0..*" Mensaje : envia
+Usuario "1" --> "0..*" Notificacion : recibe
+Usuario "1" --> "0..*" ConsultaAgenteIA : consulta
+Usuario "1" --> "0..*" AceptacionTerminos : acepta
+TerminosServicio "1" --> "0..*" AceptacionTerminos : registra
+
+style Usuario fill:#DCEBFF,stroke:#1168BD,stroke-width:2px
+style Publicacion fill:#DCEBFF,stroke:#1168BD,stroke-width:2px
