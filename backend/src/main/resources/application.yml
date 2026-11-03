@@ -19,3 +19,8 @@ spring:
 
 wasimasi:
   dominios-institucionales: upc.edu.pe,pucp.edu.pe,unmsm.edu.pe
+  jwt:
+    # Clave para firmar los tokens (HS256): minimo 32 caracteres.
+    # En produccion se define con la variable de entorno WASIMASI_JWT_SECRET.
+    secret: ${WASIMASI_JWT_SECRET:wasimasi-clave-de-desarrollo-cambiar-en-produccion-2026}
+    expiracion-minutos: ${WASIMASI_JWT_EXPIRACION_MINUTOS:120}

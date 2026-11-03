@@ -1,6 +1,6 @@
 # WasiMasi API
 
-Spring Boot 4.1 · Java 21 · Spring Data JPA · MapStruct · Lombok · PostgreSQL (local).
+Spring Boot 4.1 · Java 21 · Spring Data JPA · Spring Security + JWT · MapStruct · Lombok · PostgreSQL (local).
 
 API del backend de WasiMasi. Esta primera version cubre el flujo minimo viable
 priorizado en el Product Backlog: **US01** (registro), **US02** (login),
@@ -42,17 +42,30 @@ habitacion), **US08** (buscar por zona/presupuesto) y **US11** (ver detalle).
    pgAdmin o `psql -d wasimasi -f src/main/resources/data.sql`), despues de
    haber levantado la app al menos una vez.
 
+## Seguridad (autenticacion y autorizacion)
+- **Autenticacion con JWT**: `POST /api/auth/login` devuelve un `token` (JWT
+  firmado con HS256, expira en 120 min por defecto). Los demas endpoints
+  exigen el header `Authorization: Bearer <token>`.
+- **Contrasenas con BCrypt**: nunca se guardan en texto plano.
+- **Autorizacion por rol**: el rol del usuario va en el token (claim `roles`).
+  Solo un `ANFITRION` puede publicar; un `BUSCADOR` recibe 403.
+- **Propiedad del recurso**: al publicar, el anfitrion se toma del token (no del
+  body), y cada usuario solo puede simular la verificacion de su propia cuenta.
+- La clave de firma se configura con la variable de entorno `WASIMASI_JWT_SECRET`
+  (minimo 32 caracteres). Si no se define, se usa una clave de desarrollo.
+
 ## Endpoints (primera version)
 
-| Metodo | Ruta | US | Descripcion |
-|---|---|---|---|
-| POST | `/api/auth/registro` | US01 | Registrar buscador o anfitrion |
-| POST | `/api/auth/login` | US02 | Iniciar sesion |
-| GET | `/api/usuarios/{id}` | US05 | Ver un usuario y su estado de verificacion |
-| POST | `/api/usuarios/{id}/simular-verificacion` | US03/US04 | Simula que el usuario quedo verificado |
-| POST | `/api/publicaciones` | US06 | Publicar una habitacion |
-| GET | `/api/publicaciones?zona=&precioMin=&precioMax=` | US08 | Buscar por zona y presupuesto |
-| GET | `/api/publicaciones/{id}` | US11 | Ver el detalle de una publicacion |
+| Metodo | Ruta | US | Acceso | Descripcion |
+|---|---|---|---|---|
+| POST | `/api/auth/registro` | US01 | Publico | Registrar buscador o anfitrion |
+| POST | `/api/auth/login` | US02 | Publico | Iniciar sesion, devuelve JWT |
+| GET | `/api/usuarios/me` | US05 | Autenticado | Datos del usuario del token |
+| GET | `/api/usuarios/{id}` | US05 | Autenticado | Ver un usuario y su estado de verificacion |
+| POST | `/api/usuarios/{id}/simular-verificacion` | US03/US04 | Solo el propio usuario | Simula que el usuario quedo verificado |
+| POST | `/api/publicaciones` | US06 | Solo ANFITRION | Publicar una habitacion |
+| GET | `/api/publicaciones?zona=&precioMin=&precioMax=` | US08 | Autenticado | Buscar por zona y presupuesto |
+| GET | `/api/publicaciones/{id}` | US11 | Autenticado | Ver el detalle de una publicacion |
 
 ## Reglas destacadas
 - Correo duplicado en el registro → 409.

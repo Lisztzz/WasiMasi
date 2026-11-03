@@ -1,14 +1,40 @@
 {
   "info": {
     "name": "WasiMasi API",
-    "description": "Coleccion para probar el backend de WasiMasi (Sprint 1). Variable base_url = http://localhost:8080/api. Los requests de registro y publicacion guardan buscadorId, anfitrionId y publicacionId en variables de coleccion; ejecutar en orden: Auth -> Usuarios -> Publicaciones.",
+    "description": "Backend de WasiMasi (Sprint 1) con Spring Security + JWT. base_url = http://localhost:8080/api.\n\nEjecutar en orden: Auth -> Usuarios -> Publicaciones. Los logins guardan tokenBuscador y tokenAnfitrion; los requests protegidos los envian como 'Authorization: Bearer <token>'.\n\nAntes de correrla de nuevo, vacia las tablas (ver README) para que el registro no devuelva 409.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:8080/api", "type": "string" },
-    { "key": "buscadorId", "value": "", "type": "string" },
-    { "key": "anfitrionId", "value": "", "type": "string" },
-    { "key": "publicacionId", "value": "", "type": "string" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "buscadorId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "anfitrionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "publicacionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenBuscador",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAnfitrion",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -20,27 +46,41 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "  const json = pm.response.json();",
-                  "  pm.collectionVariables.set('buscadorId', json.id);",
-                  "  pm.test('registrado (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
-                  "} else {",
-                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "  pm.collectionVariables.set('buscadorId', pm.response.json().id);",
+                  "}",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202099999\",\n  \"universidad\": \"UPC\"\n}"
-            },
-            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+            }
           }
         },
         {
@@ -49,75 +89,247 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "  const json = pm.response.json();",
-                  "  pm.collectionVariables.set('anfitrionId', json.id);",
-                  "  pm.test('registrado (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
-                  "} else {",
-                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "  pm.collectionVariables.set('anfitrionId', pm.response.json().id);",
+                  "}",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Carlos Diaz\",\n  \"correo\": \"carlos.anfitrion@gmail.com\",\n  \"password\": \"clave123\",\n  \"rol\": \"ANFITRION\",\n  \"documentoIdentidad\": \"75011234\"\n}"
-            },
-            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+            }
           }
         },
         {
-          "name": "Registrar Buscador - correo duplicado (US01, 409)",
+          "name": "Registrar - correo duplicado (US01, 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202099999\",\n  \"universidad\": \"UPC\"\n}"
-            },
-            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+            }
           }
         },
         {
           "name": "Registrar Buscador - correo no institucional (US01, 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/registro",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Pedro Lopez\",\n  \"correo\": \"pedro@gmail.com\",\n  \"password\": \"clave123\",\n  \"rol\": \"BUSCADOR\",\n  \"codigoEstudiante\": \"U202088888\",\n  \"universidad\": \"UPC\"\n}"
-            },
-            "url": { "raw": "{{base_url}}/auth/registro", "host": ["{{base_url}}"], "path": ["auth", "registro"] }
+            }
           }
         },
         {
-          "name": "Login Buscador (US02)",
+          "name": "Login Buscador (US02) - guarda token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('tokenBuscador', pm.response.json().token);",
+                  "}",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"clave123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Anfitrion (US02) - guarda token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('tokenAnfitrion', pm.response.json().token);",
+                  "}",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
-            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"carlos.anfitrion@gmail.com\",\n  \"password\": \"clave123\"\n}"
+            }
           }
         },
         {
           "name": "Login - password incorrecta (US02, 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"ana.prueba@upc.edu.pe\",\n  \"password\": \"incorrecta\"\n}"
-            },
-            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+            }
           }
         }
       ]
@@ -126,26 +338,187 @@
       "name": "Usuarios",
       "item": [
         {
+          "name": "Mis datos (token Anfitrion)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Simular verificacion del Anfitrion (US03/US04)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
             "url": {
               "raw": "{{base_url}}/usuarios/{{anfitrionId}}/simular-verificacion",
-              "host": ["{{base_url}}"],
-              "path": ["usuarios", "{{anfitrionId}}", "simular-verificacion"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{anfitrionId}}",
+                "simular-verificacion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Simular verificacion de OTRO usuario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/{{anfitrionId}}/simular-verificacion",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{anfitrionId}}",
+                "simular-verificacion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
             }
           }
         },
         {
           "name": "Ver Anfitrion (US05)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/usuarios/{{anfitrionId}}",
-              "host": ["{{base_url}}"],
-              "path": ["usuarios", "{{anfitrionId}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{anfitrionId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver Anfitrion SIN token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/usuarios/{{anfitrionId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{anfitrionId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         }
@@ -155,89 +528,360 @@
       "name": "Publicaciones",
       "item": [
         {
-          "name": "Publicar habitacion (US06)",
+          "name": "Publicar habitacion como Anfitrion (US06)",
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 201) {",
-                  "  const json = pm.response.json();",
-                  "  pm.collectionVariables.set('publicacionId', json.id);",
-                  "  pm.test('publicada (201) y id guardado', () => pm.expect(json.id).to.not.be.undefined);",
-                  "} else {",
-                  "  pm.test('respuesta: ' + pm.response.code, () => pm.expect(pm.response.code).to.eql(201));",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "  pm.collectionVariables.set('publicacionId', pm.response.json().id);",
+                  "}",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"anfitrionId\": {{anfitrionId}},\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\"https://example.com/foto1.jpg\"]\n}"
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Publicar como Buscador (US06, 403 por rol)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
             },
-            "url": { "raw": "{{base_url}}/publicaciones", "host": ["{{base_url}}"], "path": ["publicaciones"] }
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Publicar SIN token (US06, 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+            }
           }
         },
         {
           "name": "Publicar sin fotos (US06, 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"anfitrionId\": {{anfitrionId}},\n  \"zona\": \"Pueblo Libre\",\n  \"precio\": 500,\n  \"descripcion\": \"Sin fotos, deberia fallar\",\n  \"fotos\": []\n}"
-            },
-            "url": { "raw": "{{base_url}}/publicaciones", "host": ["{{base_url}}"], "path": ["publicaciones"] }
+              "raw": "{\n  \"zona\": \"Pueblo Libre\",\n  \"precio\": 500,\n  \"descripcion\": \"Sin fotos, deberia fallar\",\n  \"fotos\": []\n}"
+            }
           }
         },
         {
           "name": "Buscar por zona y presupuesto (US08)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=300&precioMax=800",
-              "host": ["{{base_url}}"],
-              "path": ["publicaciones"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
               "query": [
-                { "key": "zona", "value": "Jesus Maria" },
-                { "key": "precioMin", "value": "300" },
-                { "key": "precioMax", "value": "800" }
+                {
+                  "key": "zona",
+                  "value": "Jesus Maria"
+                },
+                {
+                  "key": "precioMin",
+                  "value": "300"
+                },
+                {
+                  "key": "precioMax",
+                  "value": "800"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
               ]
             }
           }
         },
         {
           "name": "Buscar - presupuesto invertido (US08, 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=800&precioMax=300",
-              "host": ["{{base_url}}"],
-              "path": ["publicaciones"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
               "query": [
-                { "key": "zona", "value": "Jesus Maria" },
-                { "key": "precioMin", "value": "800" },
-                { "key": "precioMax", "value": "300" }
+                {
+                  "key": "zona",
+                  "value": "Jesus Maria"
+                },
+                {
+                  "key": "precioMin",
+                  "value": "800"
+                },
+                {
+                  "key": "precioMax",
+                  "value": "300"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
               ]
             }
           }
         },
         {
           "name": "Ver detalle de publicacion (US11)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
-              "host": ["{{base_url}}"],
-              "path": ["publicaciones", "{{publicacionId}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ver detalle - no existe (US11, 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "999999"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
             }
           }
         }
