@@ -76,14 +76,4 @@ habitacion), **US08** (buscar por zona/presupuesto) y **US11** (ver detalle).
 - Publicar sin fotos → 400; publicar con un anfitrion aun no verificado no
   falla, pero la publicacion se guarda como `BORRADOR` con una advertencia.
 - Buscar con presupuesto minimo mayor al maximo → 400.
-- Sin token o con token invalido/expirado → 401; rol sin permiso o recurso ajeno → 403.
-- Errores en formato JSON estandar: `{timestamp, status, error, message}`
-  (incluidos los 401/403 de seguridad).
-
-## Reiniciar los datos de prueba
-Los usuarios creados antes de agregar BCrypt tienen la contrasena en texto
-plano y ya no pueden iniciar sesion. Para empezar limpio (por ejemplo antes de
-correr la coleccion de Postman), ejecutar en pgAdmin sobre la base `wasimasi`:
-```sql
-TRUNCATE usuarios, publicaciones, publicacion_fotos RESTART IDENTITY CASCADE;
-```
+- Errores en formato JSON estandar: `{timestamp, status, error, message}`.
