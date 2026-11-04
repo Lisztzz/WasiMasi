@@ -1,3 +1,34 @@
 import { Routes } from '@angular/router';
+import { authGuard, invitadoGuard } from './core/guards/auth.guards';
+import { MainLayout } from './shared/layout/main-layout/main-layout';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  // Públicas (si ya hay sesión, invitadoGuard manda al inicio)
+  {
+    path: 'login',
+    canActivate: [invitadoGuard],
+    title: 'Iniciar sesión · WasiMasi',
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+  },
+  {
+    path: 'registro',
+    canActivate: [invitadoGuard],
+    title: 'Crear cuenta · WasiMasi',
+    loadComponent: () => import('./features/auth/registro/registro').then((m) => m.Registro),
+  },
+  // Con sesión: comparten la barra de navegación
+  {
+    path: '',
+    component: MainLayout,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'perfil',
+        title: 'Mi perfil · WasiMasi',
+        loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
+      },
+      { path: '', pathMatch: 'full', redirectTo: 'perfil' },
+    ],
+  },
+  { path: '**', redirectTo: '' },
+];

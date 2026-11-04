@@ -133,3 +133,19 @@ body {
     padding: 20px;
   }
 }
+
+// Enlace "Saltar al contenido": invisible hasta que recibe foco con Tab.
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 1000;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--wm-white);
+  color: var(--wm-primary);
+  font: var(--mat-sys-label-large);
+}
+.skip-link:focus {
+  left: 16px;
+}

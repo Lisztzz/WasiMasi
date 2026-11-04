@@ -1,0 +1,40 @@
+<a class="skip-link" href="#contenido">{{ 'a11y.saltar' | t }}</a>
+
+<header class="barra">
+  <div class="izquierda">
+    <a routerLink="/" class="inicio" [attr.aria-label]="'nav.inicio' | t"><app-brand [size]="32" /></a>
+    <nav class="nav-web" [attr.aria-label]="'nav.principal' | t">
+      @for (enlace of enlaces(); track enlace.ruta) {
+        <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">{{ enlace.clave | t }}</a>
+      }
+    </nav>
+  </div>
+  <div class="derecha">
+    <app-lang-switch />
+    <span class="avatar" [attr.title]="auth.usuario()?.nombre" aria-hidden="true">{{ iniciales() }}</span>
+    <button mat-icon-button type="button" (click)="salir()" [attr.aria-label]="'nav.salir' | t" [title]="'nav.salir' | t">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <router-outlet />
+</main>
+
+<footer class="pie">
+  <nav [attr.aria-label]="'legal.nav' | t">
+    <a [href]="landing + '/terminos.html'">{{ 'legal.terminos' | t }}</a>
+    <a [href]="landing + '/terminos.html#privacidad'">{{ 'legal.privacidad' | t }}</a>
+  </nav>
+  <span>{{ 'legal.derechos' | t }}</span>
+</footer>
+
+<nav class="nav-mobile" [attr.aria-label]="'nav.principal' | t">
+  @for (enlace of enlaces(); track enlace.ruta) {
+    <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">
+      <span class="indicador"><mat-icon aria-hidden="true">{{ enlace.icono }}</mat-icon></span>
+      <span>{{ enlace.claveCorta | t }}</span>
+    </a>
+  }
+</nav>
