@@ -1,8 +1,8 @@
 @let p = publicacion();
 <article class="tarjeta" [attr.aria-labelledby]="'precio-' + p.id">
   <div class="foto">
-    @if (p.fotos.length && !fotoFallo()) {
-      <img [src]="p.fotos[0]" [alt]="'pub.fotoAlt' | t: { n: 1, zona: p.zona }" loading="lazy" (error)="fotoFallo.set(true)" />
+    @if (p.fotos.length && p.fotos[0] !== fotoFallida()) {
+      <img [src]="p.fotos[0]" [alt]="'pub.fotoAlt' | t: { n: 1, zona: p.zona }" loading="lazy" (error)="fotoFallida.set(p.fotos[0])" />
     } @else {
       <mat-icon aria-hidden="true">image</mat-icon>
       <span class="sr-only">{{ 'pub.sinFoto' | t }}</span>
@@ -16,8 +16,10 @@
       <span>{{ p.anfitrionNombre }}</span>
       <app-sello-verificacion [verificado]="p.anfitrionVerificado" />
     </div>
-    <a mat-stroked-button [routerLink]="['/publicaciones', p.id]" [attr.aria-label]="'pub.verDetalleDe' | t: { zona: p.zona }">
-      {{ 'pub.verDetalle' | t }}
-    </a>
+    @if (!vistaPrevia()) {
+      <a mat-stroked-button [routerLink]="['/publicaciones', p.id]" [attr.aria-label]="'pub.verDetalleDe' | t: { zona: p.zona }">
+        {{ 'pub.verDetalle' | t }}
+      </a>
+    }
   </div>
 </article>
