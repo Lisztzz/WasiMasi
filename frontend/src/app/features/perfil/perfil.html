@@ -1,0 +1,67 @@
+<div class="wm-page">
+  <h1 class="titulo">{{ 'perfil.titulo' | t }}</h1>
+
+  @if (error(); as mensaje) {
+    <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+  }
+
+  @if (usuario(); as u) {
+    <div class="columnas" [attr.aria-busy]="cargando()">
+      <section class="wm-card cuenta" aria-labelledby="titulo-cuenta">
+        <h2 id="titulo-cuenta" class="sr-only">{{ 'perfil.cuenta' | t }}</h2>
+        <div class="cabecera">
+          <span class="avatar" aria-hidden="true">{{ iniciales() }}</span>
+          <div>
+            <p class="nombre">{{ u.nombre }}</p>
+            <span class="sello rol">
+              <mat-icon aria-hidden="true">{{ u.rol === 'BUSCADOR' ? 'school' : 'home' }}</mat-icon>
+              {{ 'perfil.rol.' + u.rol | t }}
+            </span>
+          </div>
+        </div>
+        <dl class="datos">
+          <div><dt>{{ 'perfil.correo' | t }}</dt><dd>{{ u.correo }}</dd></div>
+          @if (u.universidad) {
+            <div><dt>{{ 'perfil.universidad' | t }}</dt><dd>{{ u.universidad }}</dd></div>
+          }
+        </dl>
+        <button mat-button type="button" class="salir" (click)="cerrarSesion()">
+          <mat-icon>logout</mat-icon>{{ 'nav.salir' | t }}
+        </button>
+      </section>
+
+      <section class="wm-card verificacion" aria-labelledby="titulo-verif">
+        <div class="encabezado">
+          <h2 id="titulo-verif">{{ 'verif.titulo' | t }}</h2>
+          <span class="sello" [class.ok]="verificado()" role="status">
+            <mat-icon aria-hidden="true">{{ verificado() ? 'verified' : 'hourglass_top' }}</mat-icon>
+            {{ 'verif.estado.' + u.estadoVerificacion | t }}
+          </span>
+        </div>
+        <p>{{ 'verif.texto.' + u.rol | t }}</p>
+        <ul class="pasos">
+          @for (paso of pasos(); track paso.clave) {
+            <li [class.hecho]="paso.hecho">
+              <span class="burbuja"><mat-icon aria-hidden="true">{{ paso.hecho ? 'check' : 'hourglass_top' }}</mat-icon></span>
+              {{ paso.clave | t }}
+            </li>
+          }
+        </ul>
+
+        @if (verificado()) {
+          <p class="exito"><mat-icon aria-hidden="true">verified</mat-icon>{{ 'verif.sello.' + u.rol | t }}</p>
+        } @else {
+          <button mat-flat-button type="button" (click)="verificar()" [disabled]="verificando()">
+            @if (verificando()) {
+              <mat-spinner diameter="20" aria-hidden="true" />
+            }
+            {{ 'verif.boton' | t }}
+          </button>
+          <p class="nota">{{ 'verif.demo' | t }}</p>
+        }
+      </section>
+    </div>
+  } @else if (cargando()) {
+    <p class="cargando" role="status"><mat-spinner diameter="24" aria-hidden="true" />{{ 'perfil.cargando' | t }}</p>
+  }
+</div>

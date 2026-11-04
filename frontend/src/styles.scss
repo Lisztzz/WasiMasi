@@ -1,0 +1,151 @@
+// Tema global de WasiMasi sobre Angular Material (Material Design 3).
+// Los colores salen de la guía de estilo de Figma (sección 3.2.1 del informe):
+// regla 60-30-10 -> crema #FFF7ED (60 %), azul marino #0F2D40 (30 %), naranja #C4532F (10 %).
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+
+  // Sobrescribe los tokens de sistema de M3 con la paleta exacta de la marca.
+  @include mat.theme-overrides(
+    (
+      primary: #0f2d40,
+      on-primary: #ffffff,
+      primary-container: #fbe1d8,
+      on-primary-container: #3a1206,
+      secondary: #c4532f,
+      on-secondary: #ffffff,
+      secondary-container: #fbe1d8,
+      on-secondary-container: #3a1206,
+      tertiary: #e8704f,
+      on-tertiary: #1b1b1b,
+      error: #b3261e,
+      on-error: #ffffff,
+      background: #fff7ed,
+      on-background: #1b1b1b,
+      surface: #fff7ed,
+      on-surface: #1b1b1b,
+      on-surface-variant: #4a4540,
+      surface-container-lowest: #ffffff,
+      surface-container-low: #fffbf6,
+      surface-container: #fbf2e8,
+      surface-container-high: #f5ece2,
+      surface-container-highest: #efe6dc,
+      outline: #857d75,
+      outline-variant: #ded6cc,
+    )
+  );
+
+  // Tokens propios de WasiMasi para los componentes de la app.
+  --wm-primary: #0f2d40;
+  --wm-secondary: #c4532f;
+  --wm-accent: #e8704f;
+  --wm-info: #3ca1ff;
+  --wm-success: #1e7f45;
+  --wm-success-container: #e3f4e9;
+  --wm-error: #b3261e;
+  --wm-surface: #fff7ed;
+  --wm-on-surface: #1b1b1b;
+  --wm-container: #fbe1d8;
+  --wm-on-container: #3a1206;
+  --wm-border: #ded6cc;
+  --wm-white: #ffffff;
+  --wm-radius-card: 16px;
+  --wm-page-padding: 120px;
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+}
+
+// Foco visible en todo lo que se puede usar con el teclado (accesibilidad).
+:focus-visible {
+  outline: 2px solid var(--wm-secondary);
+  outline-offset: 2px;
+}
+
+// Clase para textos que solo leen los lectores de pantalla.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Contenedor de página con los márgenes del mock-up (120 px web / 16 px mobile).
+.wm-page {
+  box-sizing: border-box;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 40px var(--wm-page-padding);
+}
+
+// Tarjeta base de los mock-ups.
+.wm-card {
+  background: var(--wm-white);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-card);
+  padding: 28px;
+}
+
+// Botones en forma de píldora, como en la guía de estilo.
+.mat-mdc-button-base {
+  --mat-button-filled-container-shape: 100px;
+  --mat-button-outlined-container-shape: 100px;
+  --mat-button-text-container-shape: 100px;
+}
+
+// Botón naranja (acción secundaria de marca: Registrarse, Publicar).
+.wm-btn-secondary.mat-mdc-unelevated-button:not(:disabled) {
+  --mat-button-filled-container-color: var(--wm-secondary);
+  --mat-button-filled-label-text-color: var(--wm-white);
+}
+
+@media (max-width: 768px) {
+  html {
+    --wm-page-padding: 16px;
+  }
+  .wm-page {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .wm-card {
+    padding: 20px;
+  }
+}
+
+// Enlace "Saltar al contenido": invisible hasta que recibe foco con Tab.
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 1000;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--wm-white);
+  color: var(--wm-primary);
+  font: var(--mat-sys-label-large);
+}
+.skip-link:focus {
+  left: 16px;
+}
