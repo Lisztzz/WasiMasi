@@ -32,7 +32,7 @@ legend { font: var(--mat-sys-title-medium); color: var(--wm-primary); margin-bot
   background: var(--wm-container); color: var(--wm-on-container); font: var(--mat-sys-body-small);
 }
 .aviso { margin-bottom: 16px; }
-.aviso a { color: var(--wm-secondary); font-weight: 500; }
+.aviso a { color: var(--wm-on-container); font-weight: 500; text-decoration-color: var(--wm-secondary); text-decoration-thickness: 2px; }
 .nota mat-icon, .aviso mat-icon { font-size: 20px; width: 20px; height: 20px; flex: none; }
 .aviso.error { background: #fde7e4; color: var(--wm-error); }
 
