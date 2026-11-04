@@ -1,0 +1,31 @@
+<a class="skip-link" href="#contenido">{{ 'a11y.saltar' | t }}</a>
+<div class="auth">
+  <aside class="marca">
+    <app-brand [size]="40" [claro]="true" />
+    <div class="mensaje">
+      <p class="titulo">{{ 'auth.marca.titulo' | t }}</p>
+      <ul>
+        @for (clave of beneficios; track clave) {
+          <li><mat-icon aria-hidden="true">check</mat-icon>{{ clave | t }}</li>
+        }
+      </ul>
+    </div>
+    <p class="copy">{{ 'legal.derechos' | t }}</p>
+  </aside>
+
+  <main id="contenido" class="panel" tabindex="-1">
+    <div class="barra">
+      <app-brand class="solo-mobile" [size]="28" />
+      <app-lang-switch />
+    </div>
+    <div class="centro">
+      <div class="formulario">
+        <ng-content />
+      </div>
+    </div>
+    <nav class="legal" [attr.aria-label]="'legal.nav' | t">
+      <a [href]="landing + '/terminos.html'">{{ 'legal.terminos' | t }}</a>
+      <a [href]="landing + '/terminos.html#privacidad'">{{ 'legal.privacidad' | t }}</a>
+    </nav>
+  </main>
+</div>
