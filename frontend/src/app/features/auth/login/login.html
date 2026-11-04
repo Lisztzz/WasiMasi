@@ -1,0 +1,45 @@
+<app-auth-layout>
+  <h1 class="titulo">{{ 'login.titulo' | t }}</h1>
+  <p class="subtitulo">{{ 'login.subtitulo' | t }}</p>
+
+  @if (expirada()) {
+    <p class="aviso" role="status"><mat-icon aria-hidden="true">schedule</mat-icon>{{ 'login.expirada' | t }}</p>
+  }
+  @if (error(); as mensaje) {
+    <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'campo.correo' | t }}</mat-label>
+      <input matInput type="email" formControlName="correo" autocomplete="email" />
+      @if (form.controls.correo.hasError('required')) {
+        <mat-error>{{ 'val.requerido' | t }}</mat-error>
+      } @else if (form.controls.correo.hasError('email')) {
+        <mat-error>{{ 'val.correo' | t }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'campo.password' | t }}</mat-label>
+      <input matInput [type]="verPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" />
+      <button mat-icon-button matSuffix type="button" (click)="verPassword.set(!verPassword())"
+              [attr.aria-label]="(verPassword() ? 'campo.ocultarPassword' : 'campo.mostrarPassword') | t"
+              [attr.aria-pressed]="verPassword()">
+        <mat-icon>{{ verPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>{{ 'val.requerido' | t }}</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button type="submit" class="enviar" [disabled]="cargando()">
+      @if (cargando()) {
+        <mat-spinner diameter="20" aria-hidden="true" />
+      }
+      {{ 'login.boton' | t }}
+    </button>
+  </form>
+
+  <p class="enlace">{{ 'login.sinCuenta' | t }}<a routerLink="/registro">{{ 'login.registrate' | t }}</a></p>
+</app-auth-layout>

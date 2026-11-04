@@ -1,0 +1,94 @@
+<app-auth-layout>
+  <h1 class="titulo">{{ 'registro.titulo' | t }}</h1>
+
+  @if (error(); as mensaje) {
+    <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <p id="pregunta-rol" class="pregunta">{{ 'registro.pregunta' | t }}</p>
+    <mat-chip-listbox formControlName="rol" aria-labelledby="pregunta-rol" class="roles">
+      @for (r of roles; track r) {
+        <mat-chip-option [value]="r">{{ 'registro.rol.' + r | t }}</mat-chip-option>
+      }
+    </mat-chip-listbox>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'campo.nombre' | t }}</mat-label>
+      <input matInput formControlName="nombre" autocomplete="name" />
+      @if (form.controls.nombre.hasError('required')) {
+        <mat-error>{{ 'val.requerido' | t }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="con-ayuda">
+      <mat-label>{{ (rol() === 'BUSCADOR' ? 'campo.correoInstitucional' : 'campo.correo') | t }}</mat-label>
+      <input matInput type="email" formControlName="correo" autocomplete="email" />
+      @if (rol() === 'BUSCADOR') {
+        <mat-hint>{{ 'campo.correoAyuda' | t }}</mat-hint>
+      }
+      @if (form.controls.correo.hasError('required')) {
+        <mat-error>{{ 'val.requerido' | t }}</mat-error>
+      } @else if (form.controls.correo.hasError('email')) {
+        <mat-error>{{ 'val.correo' | t }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="con-ayuda">
+      <mat-label>{{ 'campo.password' | t }}</mat-label>
+      <input matInput [type]="verPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" />
+      <button mat-icon-button matSuffix type="button" (click)="verPassword.set(!verPassword())"
+              [attr.aria-label]="(verPassword() ? 'campo.ocultarPassword' : 'campo.mostrarPassword') | t"
+              [attr.aria-pressed]="verPassword()">
+        <mat-icon>{{ verPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      <mat-hint>{{ 'campo.passwordAyuda' | t }}</mat-hint>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>{{ 'val.requerido' | t }}</mat-error>
+      } @else if (form.controls.password.hasError('minlength')) {
+        <mat-error>{{ 'val.min8' | t }}</mat-error>
+      }
+    </mat-form-field>
+
+    @if (rol() === 'BUSCADOR') {
+      <div class="fila">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'campo.universidad' | t }}</mat-label>
+          <input matInput formControlName="universidad" autocomplete="organization" />
+          @if (form.controls.universidad.hasError('required')) {
+            <mat-error>{{ 'val.requerido' | t }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'campo.codigo' | t }}</mat-label>
+          <input matInput formControlName="codigoEstudiante" />
+          @if (form.controls.codigoEstudiante.hasError('required')) {
+            <mat-error>{{ 'val.requerido' | t }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'campo.dni' | t }}</mat-label>
+        <input matInput formControlName="documentoIdentidad" inputmode="numeric" maxlength="8" />
+        @if (form.controls.documentoIdentidad.hasError('required')) {
+          <mat-error>{{ 'val.requerido' | t }}</mat-error>
+        } @else if (form.controls.documentoIdentidad.hasError('pattern')) {
+          <mat-error>{{ 'val.dni' | t }}</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <p class="aviso"><mat-icon aria-hidden="true">shield</mat-icon>
+      {{ (rol() === 'BUSCADOR' ? 'registro.notaBuscador' : 'registro.notaAnfitrion') | t }}</p>
+
+    <button mat-flat-button type="submit" class="enviar" [disabled]="cargando()">
+      @if (cargando()) {
+        <mat-spinner diameter="20" aria-hidden="true" />
+      }
+      {{ 'registro.boton' | t }}
+    </button>
+  </form>
+
+  <p class="enlace">{{ 'registro.conCuenta' | t }}<a routerLink="/login">{{ 'registro.iniciaSesion' | t }}</a></p>
+</app-auth-layout>

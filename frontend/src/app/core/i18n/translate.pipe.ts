@@ -1,0 +1,15 @@
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { I18nService } from './i18n.service';
+
+/**
+ * Traduce una clave al idioma actual:  {{ 'login.titulo' | t }}
+ * Es impuro para que el texto cambie apenas el usuario cambia de idioma.
+ */
+@Pipe({ name: 't', pure: false })
+export class TranslatePipe implements PipeTransform {
+  private readonly i18n = inject(I18nService);
+
+  transform(key: string, params?: Record<string, string | number>): string {
+    return this.i18n.t(key, params);
+  }
+}

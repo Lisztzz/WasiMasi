@@ -1,0 +1,87 @@
+<div class="wm-page">
+  <h1 class="titulo">{{ 'buscar.titulo' | t }}</h1>
+
+  <section class="wm-card filtros" [attr.aria-label]="'buscar.filtros' | t">
+    <form [formGroup]="form" (ngSubmit)="buscar()" novalidate class="campos">
+      <mat-form-field appearance="outline" class="zona">
+        <mat-label>{{ 'buscar.zona' | t }}</mat-label>
+        <input matInput formControlName="zona" [matAutocomplete]="distritos" autocomplete="off" />
+        <mat-icon matPrefix aria-hidden="true">location_on</mat-icon>
+        <mat-autocomplete #distritos="matAutocomplete">
+          @for (d of sugerencias(); track d) {
+            <mat-option [value]="d">{{ d }}</mat-option>
+          }
+        </mat-autocomplete>
+        @if (form.controls.zona.hasError('required')) {
+          <mat-error>{{ 'val.requerido' | t }}</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="precios">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'buscar.min' | t }}</mat-label>
+          <input matInput type="number" min="0" formControlName="precioMin" inputmode="numeric" />
+          @if (form.controls.precioMin.invalid) {
+            <mat-error>{{ 'val.positivo' | t }}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'buscar.max' | t }}</mat-label>
+          <input matInput type="number" min="1" formControlName="precioMax" inputmode="numeric" />
+          @if (form.controls.precioMax.invalid) {
+            <mat-error>{{ 'val.positivo' | t }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <button mat-flat-button type="submit" class="boton" [disabled]="cargando()">
+        <mat-icon>search</mat-icon>{{ 'buscar.boton' | t }}
+      </button>
+    </form>
+
+    @if (form.hasError('rango') && (form.controls.precioMin.touched || form.controls.precioMax.touched)) {
+      <p class="error-rango" role="alert">{{ 'val.rango' | t }}</p>
+    }
+
+    <div class="populares">
+      <span id="zonas-populares">{{ 'buscar.populares' | t }}</span>
+      <mat-chip-set aria-labelledby="zonas-populares">
+        @for (z of zonasPopulares; track z) {
+          <mat-chip [highlighted]="buscada()?.zona === z" (click)="buscarZona(z)" (keydown.enter)="buscarZona(z)" tabindex="0" role="button">
+            {{ z }}
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+  </section>
+
+  <section class="resultados" aria-live="polite" [attr.aria-busy]="cargando()">
+    @if (cargando()) {
+      <p class="estado"><mat-spinner diameter="24" aria-hidden="true" />{{ 'buscar.cargando' | t }}</p>
+    } @else if (error(); as mensaje) {
+      <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+    } @else if (resultados(); as lista) {
+      <div class="meta">
+        <h2>{{ textoResultados() }}</h2>
+        <span>{{ 'buscar.soloActivas' | t }}</span>
+      </div>
+      @if (lista.length) {
+        <ul class="grilla">
+          @for (p of lista; track p.id) {
+            <li><app-publicacion-card [publicacion]="p" /></li>
+          }
+        </ul>
+      } @else {
+        <div class="vacio">
+          <mat-icon aria-hidden="true">search_off</mat-icon>
+          <p>{{ 'buscar.vacio' | t: { zona: buscada()?.zona ?? '' } }}</p>
+        </div>
+      }
+    } @else {
+      <div class="vacio">
+        <mat-icon aria-hidden="true">travel_explore</mat-icon>
+        <p>{{ 'buscar.inicio' | t }}</p>
+      </div>
+    }
+  </section>
+</div>

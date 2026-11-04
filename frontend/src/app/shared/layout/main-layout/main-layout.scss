@@ -1,0 +1,48 @@
+:host { display: flex; flex-direction: column; min-height: 100vh; }
+
+.barra {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px var(--wm-page-padding);
+  background: var(--wm-white); border-bottom: 1px solid var(--wm-border);
+  position: sticky; top: 0; z-index: 10;
+}
+.izquierda, .derecha { display: flex; align-items: center; }
+.izquierda { gap: 48px; }
+.derecha { gap: 12px; }
+.inicio { text-decoration: none; display: inline-flex; }
+.nav-web { display: flex; gap: 32px; }
+.nav-web a { font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+.nav-web a.activo { color: var(--wm-secondary); font-weight: 500; border-bottom-color: var(--wm-secondary); }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--wm-primary); color: var(--wm-surface); font: var(--mat-sys-label-large);
+}
+
+main { flex: 1; outline: none; }
+
+.pie {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 20px var(--wm-page-padding); font: var(--mat-sys-body-small); border-top: 1px solid var(--wm-border);
+}
+.pie nav { display: flex; gap: 24px; }
+.pie a { color: var(--wm-on-surface); }
+
+.nav-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .barra { padding: 8px 16px; }
+  .nav-web { display: none; }
+  .pie { padding-bottom: 88px; justify-content: center; }
+  .nav-mobile {
+    display: flex; justify-content: space-around;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    padding: 8px 0 12px; background: var(--wm-white); border-top: 1px solid var(--wm-border);
+  }
+  .nav-mobile a {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font: var(--mat-sys-label-medium); color: var(--wm-on-surface); text-decoration: none;
+  }
+  .indicador { display: inline-flex; padding: 4px 20px; border-radius: 100px; }
+  .nav-mobile a.activo { color: var(--wm-primary); font-weight: 500; }
+  .nav-mobile a.activo .indicador { background: var(--wm-container); color: var(--wm-on-container); }
+}
