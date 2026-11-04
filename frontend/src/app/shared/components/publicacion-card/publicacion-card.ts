@@ -16,5 +16,8 @@ import { SelloVerificacion } from '../sello-verificacion/sello-verificacion';
 })
 export class PublicacionCard {
   readonly publicacion = input.required<Publicacion>();
-  protected readonly fotoFallo = signal(false);
+  /** En la pantalla de publicar la tarjeta es solo una vista previa: sin enlace al detalle. */
+  readonly vistaPrevia = input(false);
+  /** URL de la portada que no cargó (se muestra el ícono en su lugar). */
+  protected readonly fotoFallida = signal<string | null>(null);
 }
