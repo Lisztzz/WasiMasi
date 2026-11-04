@@ -23,11 +23,21 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'buscar',
+        title: 'Buscar habitaciones · WasiMasi',
+        loadComponent: () => import('./features/publicaciones/busqueda/busqueda').then((m) => m.Busqueda),
+      },
+      {
+        path: 'publicaciones/:id',
+        title: 'Detalle de la habitación · WasiMasi',
+        loadComponent: () => import('./features/publicaciones/detalle/detalle').then((m) => m.Detalle),
+      },
+      {
         path: 'perfil',
         title: 'Mi perfil · WasiMasi',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
       },
-      { path: '', pathMatch: 'full', redirectTo: 'perfil' },
+      { path: '', pathMatch: 'full', redirectTo: 'buscar' },
     ],
   },
   { path: '**', redirectTo: '' },

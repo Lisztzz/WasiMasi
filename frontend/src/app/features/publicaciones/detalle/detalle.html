@@ -1,0 +1,76 @@
+<div class="wm-page">
+  <a class="volver" routerLink="/buscar" [queryParams]="volverParams()">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'detalle.volver' | t }}
+  </a>
+
+  @if (cargando()) {
+    <p class="estado" role="status"><mat-spinner diameter="24" aria-hidden="true" />{{ 'detalle.cargando' | t }}</p>
+  } @else if (error(); as mensaje) {
+    <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+  } @else if (publicacion(); as p) {
+    <div class="columnas">
+      <div class="info">
+        <section class="galeria" [attr.aria-label]="'detalle.galeria' | t">
+          <div class="foto-principal">
+            @if (p.fotos.length && !fotosFallidas().has(fotoActual())) {
+              <img [src]="p.fotos[fotoActual()]" [alt]="'pub.fotoAlt' | t: { n: fotoActual() + 1, zona: p.zona }"
+                   (error)="marcarFotoFallida(fotoActual())" />
+            } @else {
+              <mat-icon aria-hidden="true">image</mat-icon>
+              <span class="sr-only">{{ 'pub.sinFoto' | t }}</span>
+            }
+          </div>
+          @if (p.fotos.length > 1) {
+            <ul class="miniaturas">
+              @for (foto of p.fotos; track $index) {
+                <li>
+                  <button type="button" (click)="fotoActual.set($index)" [class.activa]="$index === fotoActual()"
+                          [attr.aria-label]="'detalle.verFoto' | t: { n: $index + 1 }" [attr.aria-pressed]="$index === fotoActual()">
+                    @if (!fotosFallidas().has($index)) {
+                      <img [src]="foto" alt="" (error)="marcarFotoFallida($index)" />
+                    } @else {
+                      <mat-icon aria-hidden="true">image</mat-icon>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <h1 class="titulo">{{ 'detalle.titulo' | t: { zona: p.zona } }}</h1>
+        <p class="zona"><mat-icon aria-hidden="true">location_on</mat-icon>{{ p.zona }}</p>
+
+        @if (p.advertencia) {
+          <p class="aviso"><mat-icon aria-hidden="true">warning</mat-icon>{{ p.advertencia }}</p>
+        }
+
+        <h2>{{ 'detalle.descripcion' | t }}</h2>
+        <p class="descripcion">{{ p.descripcion }}</p>
+
+        <dl class="wm-card datos" [attr.aria-label]="'detalle.datos' | t">
+          <div><dt>{{ 'detalle.zona' | t }}</dt><dd>{{ p.zona }}</dd></div>
+          <div><dt>{{ 'detalle.precio' | t }}</dt><dd>S/ {{ p.precio | number: '1.0-2' }}</dd></div>
+          <div><dt>{{ 'detalle.estado' | t }}</dt><dd>{{ 'estado.' + p.estado | t }}</dd></div>
+          <div><dt>{{ 'detalle.publicado' | t }}</dt><dd>{{ fecha() }}</dd></div>
+        </dl>
+      </div>
+
+      <aside class="wm-card resumen" [attr.aria-label]="'detalle.anfitrion' | t">
+        <p class="precio">S/ {{ p.precio | number: '1.0-2' }} <span>{{ 'pub.mes' | t }}</span></p>
+        <div class="anfitrion">
+          <span class="avatar" aria-hidden="true">{{ inicialesAnfitrion() }}</span>
+          <div>
+            <p class="nombre">{{ p.anfitrionNombre }}</p>
+            <app-sello-verificacion [verificado]="p.anfitrionVerificado" textoOk="verif.sello.ANFITRION" />
+          </div>
+        </div>
+        <div class="acciones">
+          <button mat-flat-button type="button" (click)="proximamente()">{{ 'detalle.contactar' | t }}</button>
+          <button mat-stroked-button type="button" (click)="proximamente()">{{ 'detalle.visita' | t }}</button>
+        </div>
+        <p class="consejo"><mat-icon aria-hidden="true">shield</mat-icon>{{ 'detalle.consejo' | t }}</p>
+      </aside>
+    </div>
+  }
+</div>

@@ -1,0 +1,23 @@
+@let p = publicacion();
+<article class="tarjeta" [attr.aria-labelledby]="'precio-' + p.id">
+  <div class="foto">
+    @if (p.fotos.length && !fotoFallo()) {
+      <img [src]="p.fotos[0]" [alt]="'pub.fotoAlt' | t: { n: 1, zona: p.zona }" loading="lazy" (error)="fotoFallo.set(true)" />
+    } @else {
+      <mat-icon aria-hidden="true">image</mat-icon>
+      <span class="sr-only">{{ 'pub.sinFoto' | t }}</span>
+    }
+  </div>
+  <div class="contenido">
+    <p class="precio" [id]="'precio-' + p.id">S/ {{ p.precio | number: '1.0-2' }} <span>{{ 'pub.mes' | t }}</span></p>
+    <p class="zona"><mat-icon aria-hidden="true">location_on</mat-icon>{{ p.zona }}</p>
+    <p class="descripcion">{{ p.descripcion }}</p>
+    <div class="anfitrion">
+      <span>{{ p.anfitrionNombre }}</span>
+      <app-sello-verificacion [verificado]="p.anfitrionVerificado" />
+    </div>
+    <a mat-stroked-button [routerLink]="['/publicaciones', p.id]" [attr.aria-label]="'pub.verDetalleDe' | t: { zona: p.zona }">
+      {{ 'pub.verDetalle' | t }}
+    </a>
+  </div>
+</article>
