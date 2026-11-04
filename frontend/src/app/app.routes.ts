@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, invitadoGuard } from './core/guards/auth.guards';
+import { anfitrionGuard, authGuard, invitadoGuard } from './core/guards/auth.guards';
 import { MainLayout } from './shared/layout/main-layout/main-layout';
 
 export const routes: Routes = [
@@ -31,6 +31,12 @@ export const routes: Routes = [
         path: 'publicaciones/:id',
         title: 'Detalle de la habitación · WasiMasi',
         loadComponent: () => import('./features/publicaciones/detalle/detalle').then((m) => m.Detalle),
+      },
+      {
+        path: 'publicar',
+        canActivate: [anfitrionGuard],
+        title: 'Publicar habitación · WasiMasi',
+        loadComponent: () => import('./features/publicaciones/publicar/publicar').then((m) => m.Publicar),
       },
       {
         path: 'perfil',
