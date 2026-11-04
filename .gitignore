@@ -1,0 +1,13 @@
+# Carpetas de entrega (se suben al aula virtual, no al repo)
+TB2_entrega/
+TB2_entrega.zip
+TB3_entrega/
+
+# IDE
+.idea/
+.vscode/
+
+# Frontend (Angular)
+node_modules/
+dist/
+.angular/
