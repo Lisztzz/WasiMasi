@@ -1,0 +1,196 @@
+/* WasiMasi · Landing Page v1
+   Colores y tipografía de la guía de estilo (Figma, Material Design 3). */
+:root {
+  --primary: #0f2d40;        /* azul marino: títulos, botones principales, hero, CTA y footer */
+  --secondary: #c4532f;      /* naranja: Registrarse / Crear cuenta y cifras */
+  --accent: #e8704f;         /* naranja claro: solo decorativo (no lleva texto) */
+  --success: #1e7f45;        /* verde: íconos de verificado */
+  --success-container: #edf8f0;
+  --surface: #fff7ed;        /* crema: fondo de la página */
+  --on-surface: #1b1b1b;     /* texto normal */
+  --container: #fbe1d8;      /* durazno: círculos de íconos y etiqueta del hero */
+  --on-container: #3a1206;
+  --border: #ded6cc;
+  --white: #ffffff;
+  --gutter: 120px;
+  --radius-card: 16px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: 400 16px/24px 'Roboto', system-ui, sans-serif;
+}
+h1, h2, h3, p, ul, ol, figure, blockquote { margin: 0; }
+ul, ol { list-style: none; padding: 0; }
+a { color: inherit; }
+img, svg { display: block; }
+
+/* Íconos Material Symbols */
+.material-symbols-outlined { font-size: 24px; line-height: 1; user-select: none; }
+
+/* Accesibilidad */
+.skip-link {
+  position: absolute; left: -9999px; top: 8px; z-index: 100;
+  padding: 8px 16px; border-radius: 8px; background: var(--white); color: var(--primary); font-weight: 500;
+}
+.skip-link:focus { left: 16px; }
+:focus-visible { outline: 2px solid var(--secondary); outline-offset: 2px; }
+main:focus { outline: none; }
+
+.contenedor { max-width: 1440px; margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+
+/* Botones en forma de píldora */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 24px; border-radius: 100px; border: 1px solid transparent;
+  font: 500 14px/20px 'Roboto', system-ui, sans-serif; text-decoration: none; cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.btn:hover { filter: brightness(1.1); }
+.btn-azul { background: var(--primary); color: var(--white); }
+.btn-naranja { background: var(--secondary); color: var(--white); }
+.btn-contorno { border-color: var(--primary); color: var(--primary); }
+.btn-texto { color: var(--primary); padding: 0 12px; }
+.btn-contorno:hover, .btn-texto:hover { filter: none; background: rgb(15 45 64 / 6%); }
+
+/* Tarjetas */
+.tarjeta { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 28px; }
+.burbuja {
+  width: 48px; height: 48px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--container); color: var(--secondary);
+}
+.burbuja-azul { width: 56px; height: 56px; background: var(--primary); color: var(--surface); font-size: 28px; }
+.burbuja-verde { color: var(--success); }
+
+/* 1. Navegación */
+.cabecera { background: var(--surface); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid transparent; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
+.marca { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 22px; line-height: 28px; color: var(--primary); }
+.menu { display: flex; align-items: center; gap: 32px; }
+.menu ul { display: flex; gap: 32px; }
+.menu ul a { text-decoration: none; }
+.menu ul a:hover { color: var(--secondary); }
+.menu-acciones { display: flex; align-items: center; gap: 8px; }
+.menu-toggle { display: none; background: none; border: 0; padding: 8px; color: var(--primary); cursor: pointer; border-radius: 8px; }
+.menu-toggle .material-symbols-outlined { font-size: 28px; }
+
+/* 2. Hero */
+.hero { display: flex; align-items: center; gap: 64px; padding-top: 72px; padding-bottom: 72px; }
+.hero-texto { flex: 1; display: flex; flex-direction: column; gap: 24px; align-items: flex-start; }
+.etiqueta {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 100px;
+  background: var(--container); color: var(--on-container); font-size: 14px; line-height: 20px; font-weight: 500;
+}
+.etiqueta .material-symbols-outlined { font-size: 18px; }
+h1 { font-size: 45px; line-height: 52px; font-weight: 400; color: var(--primary); }
+.subtitulo { max-width: 620px; }
+.acciones { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-arte {
+  width: 520px; height: 440px; flex: none; border-radius: 28px; background: var(--primary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+}
+.sello {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 100px;
+  background: var(--white); color: var(--on-surface); font-size: 14px; line-height: 20px; font-weight: 500;
+}
+.sello .material-symbols-outlined { color: var(--success); font-size: 20px; font-variation-settings: 'FILL' 1; }
+
+/* 3. Cifras */
+.cifras ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.cifras .tarjeta { display: flex; flex-direction: column; gap: 4px; }
+.cifras strong { font-size: 28px; line-height: 36px; font-weight: 400; color: var(--secondary); }
+.cifras span { font-size: 14px; line-height: 20px; }
+
+/* Secciones */
+.seccion { padding-top: 96px; padding-bottom: 0; }
+h2 { font-size: 28px; line-height: 36px; font-weight: 400; color: var(--primary); margin-bottom: 32px; }
+h3 { font-size: 22px; line-height: 28px; font-weight: 400; color: var(--primary); }
+
+/* 4. Cómo funciona */
+.pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.pasos .tarjeta { display: flex; flex-direction: column; gap: 14px; }
+.pasos p { font-size: 14px; line-height: 20px; }
+
+/* 5. Seguridad */
+.seguridad { display: flex; align-items: center; gap: 64px; }
+.seguridad-texto { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.seguridad-texto h2 { margin-bottom: 0; }
+.verificaciones { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.tarjeta.fila { display: flex; align-items: center; gap: 16px; padding: 20px; }
+.fila h3 { font-size: 16px; line-height: 24px; font-weight: 500; }
+.fila p { font-size: 14px; line-height: 20px; }
+
+/* 6. Testimonios */
+.citas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.citas .tarjeta { display: flex; flex-direction: column; gap: 12px; }
+.comillas { color: var(--accent); font-size: 36px; font-variation-settings: 'FILL' 1; }
+blockquote p { font-size: 22px; line-height: 28px; }
+cite { font-style: normal; font-size: 14px; line-height: 20px; color: var(--primary); }
+
+/* 7. Llamada a la acción */
+.cta-envoltura { padding-top: 96px; padding-bottom: 48px; }
+.cta {
+  border-radius: 28px; background: var(--primary); color: var(--surface);
+  padding: 64px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;
+}
+.cta h2 { color: var(--surface); margin: 0; }
+
+/* 8. Footer */
+.pie { background: var(--primary); color: var(--surface); }
+.pie-contenido { display: flex; justify-content: space-between; gap: 48px; padding-top: 48px; padding-bottom: 48px; font-size: 14px; line-height: 20px; }
+.pie-marca { display: flex; flex-direction: column; gap: 8px; }
+.marca-clara { color: var(--surface); }
+.pie-enlaces { display: flex; gap: 32px; }
+.pie-enlaces a { color: var(--surface); }
+.pie-idioma { display: flex; flex-direction: column; gap: 8px; }
+.idioma { display: flex; align-items: center; gap: 4px; font-weight: 500; }
+.idioma button {
+  background: none; border: 0; color: var(--surface); font: 500 14px/20px 'Roboto', system-ui, sans-serif;
+  padding: 4px 8px; border-radius: 8px; cursor: pointer;
+}
+.idioma button[aria-pressed='true'] { background: var(--container); color: var(--on-container); }
+
+/* Página de Términos */
+.legal { max-width: 800px; padding: 48px 20px 96px; margin: 0 auto; }
+.legal h1 { font-size: 36px; line-height: 44px; margin-bottom: 8px; }
+.legal h2 { font-size: 22px; line-height: 28px; margin: 32px 0 8px; }
+.legal p { margin-bottom: 12px; }
+.legal .actualizado { color: #4a4540; font-size: 14px; }
+
+/* ---------- Mobile (390 px) ---------- */
+@media (max-width: 768px) {
+  :root { --gutter: 20px; }
+  .nav { padding-top: 12px; padding-bottom: 12px; }
+  .marca { font-size: 20px; }
+  .marca svg { width: 32px; height: 32px; }
+  .menu-toggle { display: inline-flex; }
+  .menu {
+    display: none; position: absolute; left: 0; right: 0; top: 100%;
+    flex-direction: column; align-items: stretch; gap: 16px;
+    padding: 16px 20px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
+  }
+  .menu.abierto { display: flex; }
+  .menu ul { flex-direction: column; gap: 4px; }
+  .menu ul a { display: block; padding: 10px 0; }
+  .menu-acciones { flex-direction: column; align-items: stretch; }
+  .hero { flex-direction: column; gap: 32px; padding-top: 32px; padding-bottom: 48px; }
+  h1 { font-size: 36px; line-height: 44px; }
+  .acciones { flex-direction: column; align-self: stretch; }
+  .acciones .btn { width: 100%; }
+  .hero-arte { width: 100%; height: 260px; }
+  .hero-arte svg { width: 120px; height: 120px; }
+  .cifras ul, .pasos, .citas { grid-template-columns: 1fr; gap: 16px; }
+  .tarjeta { padding: 20px; }
+  .seccion { padding-top: 48px; }
+  h2 { font-size: 24px; line-height: 32px; margin-bottom: 24px; }
+  .seguridad { flex-direction: column; align-items: stretch; gap: 24px; }
+  .cta-envoltura { padding-top: 48px; padding-bottom: 24px; }
+  .cta { padding: 40px 24px; }
+  .pie-contenido { flex-direction: column; gap: 20px; padding-top: 32px; padding-bottom: 32px; }
+  .pie-enlaces { flex-direction: column; gap: 12px; }
+}
