@@ -1,0 +1,108 @@
+<div class="wm-page">
+  <h1 class="titulo">{{ 'publicar.titulo' | t }}</h1>
+  <p class="subtitulo">{{ 'publicar.subtitulo' | t }}</p>
+
+  @if (!verificado()) {
+    <p class="aviso" role="status">
+      <mat-icon aria-hidden="true">shield</mat-icon>
+      <span>{{ 'publicar.sinVerificar' | t }} <a routerLink="/perfil">{{ 'publicar.irPerfil' | t }}</a></span>
+    </p>
+  }
+  @if (error(); as mensaje) {
+    <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+  }
+
+  <div class="columnas">
+    <form class="wm-card formulario" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'buscar.zona' | t }}</mat-label>
+        <input matInput formControlName="zona" [matAutocomplete]="distritos" autocomplete="off" />
+        <mat-icon matPrefix aria-hidden="true">location_on</mat-icon>
+        <mat-autocomplete #distritos="matAutocomplete">
+          @for (d of sugerencias(); track d) {
+            <mat-option [value]="d">{{ d }}</mat-option>
+          }
+        </mat-autocomplete>
+        @if (form.controls.zona.hasError('required')) {
+          <mat-error>{{ 'val.requerido' | t }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="con-ayuda">
+        <mat-label>{{ 'publicar.precio' | t }}</mat-label>
+        <input matInput type="number" min="1" formControlName="precio" inputmode="numeric" />
+        <span matTextPrefix>S/&nbsp;</span>
+        <mat-hint>{{ 'publicar.precioAyuda' | t }}</mat-hint>
+        @if (form.controls.precio.hasError('required')) {
+          <mat-error>{{ 'val.requerido' | t }}</mat-error>
+        } @else if (form.controls.precio.hasError('min')) {
+          <mat-error>{{ 'val.positivo' | t }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="con-ayuda">
+        <mat-label>{{ 'publicar.descripcion' | t }}</mat-label>
+        <textarea matInput formControlName="descripcion" rows="4" maxlength="1000"></textarea>
+        <mat-hint>{{ 'publicar.descripcionAyuda' | t }}</mat-hint>
+        <mat-hint align="end">{{ largoDescripcion() }}/1000</mat-hint>
+        @if (form.controls.descripcion.hasError('required')) {
+          <mat-error>{{ 'val.requerido' | t }}</mat-error>
+        }
+      </mat-form-field>
+
+      <fieldset class="fotos">
+        <legend>{{ 'publicar.fotos' | t }}</legend>
+        @if (fotos().length) {
+          <ul class="miniaturas">
+            @for (url of fotos(); track url; let i = $index) {
+              <li>
+                @if (!fotosFallidas().has(url)) {
+                  <img [src]="url" [alt]="'publicar.fotoN' | t: { n: i + 1 }" (error)="marcarFotoFallida(url)" />
+                } @else {
+                  <span class="sin-foto"><mat-icon aria-hidden="true">broken_image</mat-icon>{{ 'publicar.fotoN' | t: { n: i + 1 } }}</span>
+                }
+                <button mat-icon-button type="button" class="quitar" (click)="quitarFoto(url)"
+                        [attr.aria-label]="'publicar.quitarFoto' | t: { n: i + 1 }">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+        @if (fotos().length < maxFotos) {
+          <div class="agregar">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{ 'publicar.urlFoto' | t }}</mat-label>
+              <input matInput type="url" [formControl]="urlFoto" placeholder="https://..." (keydown.enter)="$event.preventDefault(); agregarFoto()" />
+              @if (urlFoto.hasError('pattern')) {
+                <mat-error>{{ 'val.url' | t }}</mat-error>
+              }
+            </mat-form-field>
+            <button mat-stroked-button type="button" (click)="agregarFoto()">
+              <mat-icon>add_photo_alternate</mat-icon>{{ 'publicar.agregar' | t }}
+            </button>
+          </div>
+        }
+        <p class="ayuda" [class.error-texto]="intentoEnviar() && !fotos().length">
+          {{ 'publicar.fotosAyuda' | t: { max: maxFotos } }}
+        </p>
+      </fieldset>
+
+      <div class="acciones">
+        <a mat-button routerLink="/buscar">{{ 'publicar.cancelar' | t }}</a>
+        <button mat-flat-button type="submit" class="wm-btn-secondary" [disabled]="cargando()">
+          @if (cargando()) {
+            <mat-spinner diameter="20" aria-hidden="true" />
+          }
+          {{ 'publicar.boton' | t }}
+        </button>
+      </div>
+    </form>
+
+    <aside class="vista-previa" [attr.aria-label]="'publicar.previa' | t">
+      <h2>{{ 'publicar.previa' | t }}</h2>
+      <app-publicacion-card [publicacion]="vistaPrevia()" [vistaPrevia]="true" />
+      <p class="nota"><mat-icon aria-hidden="true">shield</mat-icon>{{ 'publicar.nota' | t }}</p>
+    </aside>
+  </div>
+</div>
