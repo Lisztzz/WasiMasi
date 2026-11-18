@@ -26,11 +26,14 @@ export class MainLayout {
   protected readonly auth = inject(AuthService);
   protected readonly landing = environment.landingUrl;
 
-  /** "Publicar" solo aparece para anfitriones (US06). */
+  /** Publicación y gestión de habitaciones disponibles para anfitriones. */
   protected readonly enlaces = computed<EnlaceNav[]>(() => [
     { ruta: '/buscar', icono: 'search', clave: 'nav.buscar', claveCorta: 'nav.buscarCorto' },
     ...(this.auth.esAnfitrion()
-      ? [{ ruta: '/publicar', icono: 'add', clave: 'nav.publicar', claveCorta: 'nav.publicarCorto' }]
+      ? [
+          { ruta: '/publicar', icono: 'add', clave: 'nav.publicar', claveCorta: 'nav.publicarCorto' },
+          { ruta: '/mis-publicaciones', icono: 'home_work', clave: 'gestion.titulo', claveCorta: 'gestion.navCorta' },
+        ]
       : []),
     { ruta: '/perfil', icono: 'person', clave: 'nav.perfil', claveCorta: 'nav.perfilCorto' },
   ]);

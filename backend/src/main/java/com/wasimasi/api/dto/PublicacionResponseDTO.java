@@ -1,5 +1,6 @@
 package com.wasimasi.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wasimasi.api.model.EstadoPublicacion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,9 @@ public class PublicacionResponseDTO {
     private List<String> fotos;
     private EstadoPublicacion estado;
     private LocalDateTime fechaPublicacion;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String titulo;
 
     /**
      * Mensaje informativo opcional, por ejemplo cuando la publicacion se

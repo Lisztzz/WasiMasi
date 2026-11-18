@@ -1,5 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { finalize, map, startWith } from 'rxjs';
+import { EMPTY, catchError, finalize, map, startWith, switchMap } from 'rxjs';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Publicacion } from '../../../core/models/publicacion.model';
@@ -22,7 +22,7 @@ import { PublicacionCard } from '../../../shared/components/publicacion-card/pub
 const MAX_FOTOS = 6;
 const URL_IMAGEN = /^https?:\/\/\S+$/i;
 
-/** US06 - Publicar una habitación (solo anfitriones, mock-up 06). */
+/** US06 y US07 - Publicar o editar una habitación propia. */
 @Component({
   selector: 'app-publicar',
   imports: [
@@ -39,7 +39,13 @@ export class Publicar {
   private readonly router = inject(Router);
   private readonly snack = inject(MatSnackBar);
   private readonly i18n = inject(I18nService);
+  private readonly destroyRef = inject(DestroyRef);
 
+  readonly id = input<string>();
+  private readonly cambiosId = toObservable(this.id);
+  protected readonly editando = computed(() => this.id() !== undefined);
+  protected readonly errorCarga = signal<string | null>(null);
+  protected readonly publicacionCargada = signal<Publicacion | null>(null);
   protected readonly maxFotos = MAX_FOTOS;
   protected readonly verificado = this.auth.verificado;
   protected readonly cargando = signal(false);
@@ -49,6 +55,7 @@ export class Publicar {
   protected readonly intentoEnviar = signal(false);
 
   protected readonly form = this.fb.group({
+    titulo: ['', Validators.maxLength(255)],
     zona: ['', Validators.required],
     precio: this.fb.control<number | null>(null, [Validators.required, Validators.min(1)]),
     descripcion: ['', [Validators.required, Validators.maxLength(1000)]],
@@ -65,6 +72,46 @@ export class Publicar {
   });
   protected readonly largoDescripcion = computed(() => this.valores().descripcion?.length ?? 0);
 
+  ngOnInit(): void {
+    if (!this.editando()) return;
+    this.form.controls.precio.setValidators([Validators.required, Validators.min(0.01)]);
+    this.form.controls.descripcion.setValidators(Validators.maxLength(1000));
+
+    this.cambiosId.pipe(
+      switchMap((id) => {
+        this.publicacionCargada.set(null);
+        this.errorCarga.set(null);
+        this.error.set(null);
+        this.intentoEnviar.set(false);
+        this.fotosFallidas.set(new Set());
+        this.urlFoto.reset();
+        if (id === undefined) return EMPTY;
+
+        return this.publicaciones.listarMias().pipe(
+          map((lista) => lista.find((p) => String(p.id) === id)),
+          catchError((err) => {
+            this.errorCarga.set(mensajeDeError(err, this.i18n));
+            return EMPTY;
+          }),
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((publicacion) => {
+      if (!publicacion) {
+        this.errorCarga.set(this.i18n.t('gestion.noEncontrada'));
+        return;
+      }
+      this.form.reset({
+        titulo: publicacion.titulo ?? '',
+        zona: publicacion.zona,
+        precio: publicacion.precio,
+        descripcion: publicacion.descripcion ?? '',
+      });
+      this.fotos.set(publicacion.fotos);
+      this.publicacionCargada.set(publicacion);
+    });
+  }
+
   /** Vista previa en vivo de cómo se verá la tarjeta en la búsqueda. */
   protected readonly vistaPrevia = computed<Publicacion>(() => {
     const v = this.valores();
@@ -74,6 +121,7 @@ export class Publicar {
       anfitrionId: u?.id ?? 0,
       anfitrionNombre: u?.nombre ?? '',
       anfitrionVerificado: this.verificado(),
+      titulo: this.editando() ? v.titulo?.trim() : undefined,
       zona: v.zona?.trim() || this.i18n.t('publicar.previaZona'),
       precio: Number(v.precio) || 0,
       descripcion: v.descripcion?.trim() || this.i18n.t('publicar.previaDescripcion'),
@@ -96,8 +144,8 @@ export class Publicar {
     this.urlFoto.reset();
   }
 
-  quitarFoto(url: string): void {
-    this.fotos.update((lista) => lista.filter((f) => f !== url));
+  quitarFoto(indice: number): void {
+    this.fotos.update((lista) => lista.filter((_, i) => i !== indice));
   }
 
   marcarFotoFallida(url: string): void {
@@ -105,6 +153,9 @@ export class Publicar {
   }
 
   enviar(): void {
+    const publicacion = this.publicacionCargada();
+    if (this.cargando() || (this.editando() && String(publicacion?.id) !== this.id())) return;
+
     this.intentoEnviar.set(true);
     if (this.form.invalid || this.fotos().length === 0) {
       this.form.markAllAsTouched();
@@ -114,11 +165,20 @@ export class Publicar {
     this.error.set(null);
     const v = this.form.getRawValue();
 
-    this.publicaciones
-      .publicar({ zona: v.zona, precio: Number(v.precio), descripcion: v.descripcion.trim(), fotos: this.fotos() })
+    const datos = { zona: v.zona, precio: Number(v.precio), descripcion: v.descripcion.trim(), fotos: this.fotos() };
+    const guardado = publicacion
+      ? this.publicaciones.editar(publicacion.id, { ...datos, titulo: v.titulo.trim() || null })
+      : this.publicaciones.publicar(datos);
+
+    guardado
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (creada) => {
+          if (publicacion) {
+            this.snack.open(this.i18n.t('gestion.edicionGuardada'), this.i18n.t('gestion.cerrar'), { duration: 5000 });
+            this.router.navigate(['/mis-publicaciones']);
+            return;
+          }
           // Si el anfitrión no está verificado, el backend la guarda como BORRADOR con una advertencia
           this.snack.open(creada.advertencia ?? this.i18n.t('publicar.exito'), 'OK', { duration: 6000 });
           this.router.navigate(['/publicaciones', creada.id]);

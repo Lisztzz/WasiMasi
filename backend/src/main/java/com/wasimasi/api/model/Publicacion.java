@@ -56,6 +56,9 @@ public class Publicacion {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaPublicacion;
 
+    /** US07 - Título opcional para conservar las publicaciones existentes. */
+    private String titulo;
+
     @PrePersist
     void alCrear() {
         this.fechaPublicacion = LocalDateTime.now();
