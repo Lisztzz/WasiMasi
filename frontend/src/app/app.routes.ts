@@ -39,6 +39,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/publicaciones/publicar/publicar').then((m) => m.Publicar),
       },
       {
+        path: 'mis-publicaciones',
+        canActivate: [anfitrionGuard],
+        title: 'Mis publicaciones · WasiMasi',
+        loadComponent: () => import('./features/publicaciones/mis-publicaciones/mis-publicaciones').then((m) => m.MisPublicaciones),
+      },
+      {
+        path: 'mis-publicaciones/:id/editar',
+        canActivate: [anfitrionGuard],
+        title: 'Editar publicación · WasiMasi',
+        loadComponent: () => import('./features/publicaciones/publicar/publicar').then((m) => m.Publicar),
+      },
+      {
         path: 'perfil',
         title: 'Mi perfil · WasiMasi',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),
