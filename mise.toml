@@ -22,10 +22,20 @@ description = "Levantar la Web App en http://localhost:4200"
 dir = "frontend"
 run = "npx ng serve"
 
+[tasks.frontend-test]
+description = "Ejecutar los tests unitarios de la Web App (Vitest)"
+dir = "frontend"
+run = "npx ng test --watch=false"
+
 [tasks.backend-compile]
 description = "Compilar el backend"
 dir = "backend"
 run = "mvn compile"
+
+[tasks.backend-test]
+description = "Ejecutar los tests unitarios del backend (JUnit)"
+dir = "backend"
+run = "mvn test"
 
 [tasks.backend-run]
 description = "Levantar la API en http://localhost:8080/api"

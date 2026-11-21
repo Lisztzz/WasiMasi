@@ -25,6 +25,13 @@ una vez (y `mise run frontend-install` para las dependencias). Así `npm`, `npx`
 2. **Web App:** `mise run frontend-serve` (o `cd frontend`, `npm install` y `npx ng serve`). Queda en `http://localhost:4200`.
 3. **Landing Page:** abrir `landing/index.html` con Live Server. Queda en `http://127.0.0.1:5500`.
 
+## Tests
+
+- Backend (JUnit 5 + Mockito): `mise run backend-test` (o `cd backend` → `mvn test`). No necesita PostgreSQL.
+- Web App (Angular + Vitest): `mise run frontend-test` (o `cd frontend` → `npx ng test --watch=false`).
+- Antes de abrir un PR conviene correr también `mise run frontend-build`.
+- La colección de Postman complementa estos tests con verificaciones manuales de la API.
+
 ## Flujo de trabajo
 
 - GitFlow: `main` (versiones entregadas), `develop` (integración) y ramas `feature/*`.

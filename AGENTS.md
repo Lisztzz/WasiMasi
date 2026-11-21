@@ -33,8 +33,9 @@ al proyecto (evita el error *"No version is set for shim"*). IntelliJ también p
 usar el JDK que instala mise.
 
 Tareas disponibles: `mise run frontend-install`, `mise run frontend-build`,
-`mise run frontend-serve`, `mise run backend-compile` y `mise run backend-run`.
-También puedes usar `npm`/`npx` y `mvn` directamente dentro de cada carpeta.
+`mise run frontend-serve`, `mise run frontend-test`, `mise run backend-compile`,
+`mise run backend-test` y `mise run backend-run`. También puedes usar `npm`/`npx`
+y `mvn` directamente dentro de cada carpeta.
 
 | App | Comando | URL |
 |---|---|---|
@@ -45,7 +46,9 @@ También puedes usar `npm`/`npx` y `mvn` directamente dentro de cada carpeta.
 - Base de datos local: PostgreSQL, base `wasimasi`.
 - **La contraseña de la base va SOLO en la variable de entorno `SPRING_DATASOURCE_PASSWORD`** (configuración de ejecución de IntelliJ). **Nunca** se escribe en `application.yml` ni se sube al repo.
 - Variables de entorno disponibles: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `WASIMASI_JWT_SECRET` (mín. 32 caracteres), `WASIMASI_JWT_EXPIRACION_MINUTOS`, `WASIMASI_CORS_ALLOWED_ORIGINS`.
-- Antes de abrir un PR, el frontend debe compilar sin errores: `mise run frontend-build` (o `npx ng build` dentro de `frontend/`).
+- Antes de abrir un PR, pasan los tests y el frontend compila sin errores:
+  `mise run backend-test`, `mise run frontend-test` y `mise run frontend-build`
+  (o `mvn test` en `backend/` y `npx ng test --watch=false` / `npx ng build` en `frontend/`).
 
 ---
 
@@ -151,7 +154,7 @@ HTML/CSS/JS puro. Los textos usan `data-i18n="clave"` y se traducen en `js/main.
    docs: endpoints de visitas en Postman
    ```
 4. Cada integrante hace **sus propios commits con su propia cuenta de GitHub** (cuentan para Contributors). Un asistente de IA **no** debe hacer commit ni push en nombre de alguien.
-5. Antes de abrir el PR: `git pull origin develop` en tu rama, resuelve conflictos, verifica que el backend arranque y que `mise run frontend-build` pase.
+5. Antes de abrir el PR: `git pull origin develop` en tu rama, resuelve conflictos, verifica que el backend arranque y que pasen `mise run backend-test`, `mise run frontend-test` y `mise run frontend-build`.
 6. **PR hacia `develop`** (¡no hacia `main`!), con descripción de qué US cubre. Lo revisa otro integrante antes del merge.
 7. `main` solo recibe merges de `develop` en un release (tag SemVer, ej. `v2.0.0`).
 
@@ -197,6 +200,7 @@ Los bloques 2, 3, 4 y 5 son independientes y se pueden hacer en cualquier orden.
 ## 11. Checklist antes de abrir el PR
 
 - [ ] El backend arranca y los endpoints nuevos responden en Postman (incluye el caso de error).
+- [ ] `mise run backend-test` y `mise run frontend-test` pasan sin fallos.
 - [ ] `mise run frontend-build` compila sin errores.
 - [ ] Textos nuevos en español **e** inglés.
 - [ ] Se ve bien en web y en móvil.
