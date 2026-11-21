@@ -572,7 +572,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitacion amoblada cerca a la UPC\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ],\n  \"mascotasPermitidas\": true,\n  \"generoPreferido\": \"F\",\n  \"servicios\": \"agua,electricidad,wifi\",\n  \"latitud\": -12.0866,\n  \"longitud\": -77.07\n}"
             }
           }
         },
@@ -884,6 +884,208 @@
               ]
             }
           }
+        },
+        {
+          "name": "Busqueda avanzada (US09/US10)",
+          "item": [
+            {
+              "name": "Buscar con condiciones (US09)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));",
+                      "pm.test('respeta las condiciones', () => {",
+                      "  pm.response.json().forEach(p => {",
+                      "    pm.expect(p.mascotasPermitidas).to.eql(true);",
+                      "    pm.expect(['F', 'Any']).to.include(p.generoPreferido);",
+                      "    pm.expect(p.servicios.toLowerCase()).to.include('wifi');",
+                      "  });",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=300&precioMax=800&mascotas=true&genero=F&servicios=wifi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "publicaciones"
+                  ],
+                  "query": [
+                    {
+                      "key": "zona",
+                      "value": "Jesus Maria"
+                    },
+                    {
+                      "key": "precioMin",
+                      "value": "300"
+                    },
+                    {
+                      "key": "precioMax",
+                      "value": "800"
+                    },
+                    {
+                      "key": "mascotas",
+                      "value": "true"
+                    },
+                    {
+                      "key": "genero",
+                      "value": "F"
+                    },
+                    {
+                      "key": "servicios",
+                      "value": "wifi"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenBuscador}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Buscar - genero invalido (US09, 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 400', () => pm.response.to.have.status(400));",
+                      "pm.test('mensaje en espanol', () => pm.expect(pm.response.json().message).to.include('genero'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=300&precioMax=800&mascotas=true&genero=X&servicios=wifi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "publicaciones"
+                  ],
+                  "query": [
+                    {
+                      "key": "zona",
+                      "value": "Jesus Maria"
+                    },
+                    {
+                      "key": "precioMin",
+                      "value": "300"
+                    },
+                    {
+                      "key": "precioMax",
+                      "value": "800"
+                    },
+                    {
+                      "key": "mascotas",
+                      "value": "true"
+                    },
+                    {
+                      "key": "genero",
+                      "value": "X"
+                    },
+                    {
+                      "key": "servicios",
+                      "value": "wifi"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenBuscador}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Buscar - precio invertido (US08, 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 400', () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=900&precioMax=800&mascotas=true&genero=F&servicios=wifi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "publicaciones"
+                  ],
+                  "query": [
+                    {
+                      "key": "zona",
+                      "value": "Jesus Maria"
+                    },
+                    {
+                      "key": "precioMin",
+                      "value": "900"
+                    },
+                    {
+                      "key": "precioMax",
+                      "value": "800"
+                    },
+                    {
+                      "key": "mascotas",
+                      "value": "true"
+                    },
+                    {
+                      "key": "genero",
+                      "value": "F"
+                    },
+                    {
+                      "key": "servicios",
+                      "value": "wifi"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenBuscador}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     }
