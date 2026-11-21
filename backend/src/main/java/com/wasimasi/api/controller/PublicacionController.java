@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * US06 - Publicar (solo rol ANFITRION), US08 - Buscar y US11 - Ver detalle
+ * US06 - Publicar (solo rol ANFITRION), US08/US09 - Buscar y US11 - Ver detalle
  * (cualquier usuario autenticado). Todas requieren "Authorization: Bearer <token>".
  */
 @RestController
@@ -27,18 +27,22 @@ public class PublicacionController {
 
     @PostMapping
     public ResponseEntity<PublicacionResponseDTO> publicar(@AuthenticationPrincipal Jwt jwt,
-                                                          @Valid @RequestBody PublicacionRequestDTO request) {
+                                                           @Valid @RequestBody PublicacionRequestDTO request) {
         Long anfitrionId = Long.valueOf(jwt.getSubject());
         PublicacionResponseDTO creada = publicacionService.publicar(anfitrionId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 
+    /** US08 + US09 - Los filtros de condiciones son opcionales (compatibles con el buscador anterior). */
     @GetMapping
     public List<PublicacionResponseDTO> buscar(
             @RequestParam String zona,
             @RequestParam(name = "precioMin") BigDecimal precioMin,
-            @RequestParam(name = "precioMax") BigDecimal precioMax) {
-        return publicacionService.buscar(zona, precioMin, precioMax);
+            @RequestParam(name = "precioMax") BigDecimal precioMax,
+            @RequestParam(name = "mascotas", required = false) Boolean mascotas,
+            @RequestParam(name = "genero", required = false) String genero,
+            @RequestParam(name = "servicios", required = false) String servicios) {
+        return publicacionService.buscar(zona, precioMin, precioMax, mascotas, genero, servicios);
     }
 
     @GetMapping("/{id}")
