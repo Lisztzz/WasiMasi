@@ -90,7 +90,10 @@ export class Busqueda {
         precioMax: numero(params.get('precioMax'), PRECIO_MAX),
       };
       this.form.setValue(filtros, { emitEvent: false });
-      this.ejecutar(filtros);
+      // Restaurar una URL o volver atrás solo recupera resultados; no cuenta como otra búsqueda.
+      if (!mismaBusqueda(filtros, this.buscada())) {
+        this.ejecutar(filtros, false);
+      }
     });
   }
 
@@ -100,7 +103,9 @@ export class Busqueda {
       return;
     }
     const v = this.form.getRawValue();
-    this.irA({ zona: v.zona.trim(), precioMin: Number(v.precioMin), precioMax: Number(v.precioMax) });
+    const filtros = { zona: v.zona.trim(), precioMin: Number(v.precioMin), precioMax: Number(v.precioMax) };
+    this.ejecutar(filtros, true);
+    this.irA(filtros);
   }
 
   buscarZona(zona: string): void {
@@ -112,12 +117,11 @@ export class Busqueda {
     this.router.navigate([], { relativeTo: this.route, queryParams: { ...filtros } });
   }
 
-  private ejecutar(filtros: FiltrosBusqueda): void {
+  private ejecutar(filtros: FiltrosBusqueda, registrar: boolean): void {
     this.cargando.set(true);
     this.error.set(null);
     this.buscada.set(filtros);
-    this.publicaciones
-      .buscar(filtros)
+    (registrar ? this.publicaciones.buscar(filtros) : this.publicaciones.consultar(filtros))
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (lista) => this.resultados.set(lista),
@@ -132,4 +136,11 @@ export class Busqueda {
 function numero(valor: string | null, porDefecto: number): number {
   const n = Number(valor);
   return valor !== null && Number.isFinite(n) && n >= 0 ? n : porDefecto;
+}
+
+function mismaBusqueda(a: FiltrosBusqueda, b: FiltrosBusqueda | null): boolean {
+  return b !== null
+    && a.zona === b.zona
+    && a.precioMin === b.precioMin
+    && a.precioMax === b.precioMax;
 }

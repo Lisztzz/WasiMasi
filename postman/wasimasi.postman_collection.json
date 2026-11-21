@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "WasiMasi API",
-    "description": "Backend de WasiMasi (Sprint 1) con Spring Security + JWT. base_url = http://localhost:8080/api.\n\nEjecutar en orden: Auth -> Usuarios -> Publicaciones. Los logins guardan tokenBuscador y tokenAnfitrion; los requests protegidos los envian como 'Authorization: Bearer <token>'.\n\nAntes de correrla de nuevo, vacia las tablas (ver README) para que el registro no devuelva 409.",
+    "description": "API de WasiMasi con Spring Security y JWT. base_url = http://localhost:8080/api. Ejecutar Auth -> Usuarios -> Publicaciones -> Visitas -> Reportes. Los logins guardan tokenBuscador y tokenAnfitrion. Para rechazar una visita, crea la solicitud de prueba para rechazo después de confirmar la primera; el caso sin motivo debe responder 400.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -32,6 +32,16 @@
     },
     {
       "key": "tokenAnfitrion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "visitaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "visitaRechazoId",
       "value": "",
       "type": "string"
     }
@@ -759,6 +769,53 @@
           }
         },
         {
+          "name": "Buscar y registrar filtros an?nimos (US08, US20)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/buscar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "buscar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"San Miguel\",\n  \"precioMin\": 400,\n  \"precioMax\": 1200\n}"
+            }
+          }
+        },
+        {
           "name": "Buscar - presupuesto invertido (US08, 400)",
           "event": [
             {
@@ -884,6 +941,458 @@
               ]
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Visitas e interesados (US16, US17, US19)",
+      "item": [
+        {
+          "name": "Solicitar visita (US16, 201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-20T15:30:00\",\n  \"comentario\": \"Me gustaría conocer la habitación y coordinar los detalles.\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('visitaId', pm.response.json().id);",
+                  "}",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solicitar visita duplicada pendiente (US16, 409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-21T15:30:00\",\n  \"comentario\": \"Segunda solicitud pendiente.\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver visitas recibidas (US17)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/visitas/mis-visitas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas",
+                "mis-visitas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirmar visita (US17)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas/{{visitaId}}/respuesta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas",
+                "{{visitaId}}",
+                "respuesta"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solicitar visita para probar rechazo (US16, 201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('visitaRechazoId', pm.response.json().id);",
+                  "}",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-22T15:30:00\",\n  \"comentario\": \"Puedo adaptarme a otro horario.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Rechazar sin motivo (US17, 400)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas/{{visitaRechazoId}}/respuesta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas",
+                "{{visitaRechazoId}}",
+                "respuesta"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"RECHAZADA\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rechazar visita con motivo (US17)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/visitas/{{visitaRechazoId}}/respuesta",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas",
+                "{{visitaRechazoId}}",
+                "respuesta"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"RECHAZADA\",\n  \"motivoRespuesta\": \"El horario propuesto ya está reservado.\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comparar interesados por publicación (US19)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/visitas/publicacion/{{publicacionId}}/interesados",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "visitas",
+                "publicacion",
+                "{{publicacionId}}",
+                "interesados"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reportes (US20)",
+      "item": [
+        {
+          "name": "Actividad y oferta por zona (US20)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reportes/zonas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reportes",
+                "zonas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Búsquedas y oferta por presupuesto (US20)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reportes/precios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reportes",
+                "precios"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

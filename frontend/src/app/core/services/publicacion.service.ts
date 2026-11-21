@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { FiltrosBusqueda, Publicacion, PublicacionRequest } from '../models/publicacion.model';
 import { normalizarZona } from '../utils/distritos';
 
-/** Publicaciones de habitaciones (US06 publicar, US08 buscar, US11 detalle). */
+/** Publicaciones de habitaciones (US06, US08, US11 y US20). */
 @Injectable({ providedIn: 'root' })
 export class PublicacionService {
   private readonly http = inject(HttpClient);
@@ -14,13 +14,23 @@ export class PublicacionService {
   /** Última búsqueda, para volver a los resultados desde el detalle. */
   readonly ultimaBusqueda = signal<FiltrosBusqueda | null>(null);
 
-  /** GET /publicaciones?zona&precioMin&precioMax (solo publicaciones ACTIVA). */
+  /** US08/US20 - Busca habitaciones y registra los filtros anónimos para los reportes. */
   buscar(filtros: FiltrosBusqueda): Observable<Publicacion[]> {
+    this.ultimaBusqueda.set(filtros);
+    return this.http.post<Publicacion[]>(`${this.api}/buscar`, {
+      zona: normalizarZona(filtros.zona),
+      precioMin: filtros.precioMin,
+      precioMax: filtros.precioMax,
+    });
+  }
+
+  /** US08 - Recupera una búsqueda ya presente en la URL sin volver a registrarla en US20. */
+  consultar(filtros: FiltrosBusqueda): Observable<Publicacion[]> {
     this.ultimaBusqueda.set(filtros);
     const params = new HttpParams()
       .set('zona', normalizarZona(filtros.zona))
-      .set('precioMin', filtros.precioMin)
-      .set('precioMax', filtros.precioMax);
+      .set('precioMin', String(filtros.precioMin))
+      .set('precioMax', String(filtros.precioMax));
     return this.http.get<Publicacion[]>(this.api, { params });
   }
 
@@ -33,4 +43,5 @@ export class PublicacionService {
   publicar(datos: PublicacionRequest): Observable<Publicacion> {
     return this.http.post<Publicacion>(this.api, { ...datos, zona: normalizarZona(datos.zona) });
   }
+
 }
