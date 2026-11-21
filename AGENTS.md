@@ -24,16 +24,28 @@ README.md   Cómo levantar las tres aplicaciones
 
 ## 3. Cómo ejecutar
 
+### Herramientas con mise
+
+El repositorio incluye `mise.toml` en la raíz con las versiones del equipo
+(Node 24, Java 21 de Temurin y Maven 3.9). Corre **`mise install`** una vez desde
+la raíz: mise activa `node`, `npm`, `npx`, `java` y `mvn` automáticamente al entrar
+al proyecto (evita el error *"No version is set for shim"*). IntelliJ también puede
+usar el JDK que instala mise.
+
+Tareas disponibles: `mise run frontend-install`, `mise run frontend-build`,
+`mise run frontend-serve`, `mise run backend-compile` y `mise run backend-run`.
+También puedes usar `npm`/`npx` y `mvn` directamente dentro de cada carpeta.
+
 | App | Comando | URL |
 |---|---|---|
-| Backend | Ejecutar `WasimasiApiApplication` en IntelliJ, o `mvn spring-boot:run` dentro de `backend/` | `http://localhost:8080/api` |
-| Frontend | `cd frontend` → `npm install` → `npx ng serve` | `http://localhost:4200` |
+| Backend | `mise run backend-run` (o ejecutar `WasimasiApiApplication` en IntelliJ) | `http://localhost:8080/api` |
+| Frontend | `mise run frontend-install` → `mise run frontend-serve` (o `cd frontend` → `npm install` → `npx ng serve`) | `http://localhost:4200` |
 | Landing | Abrir `landing/index.html` con Live Server | `http://127.0.0.1:5500` |
 
 - Base de datos local: PostgreSQL, base `wasimasi`.
 - **La contraseña de la base va SOLO en la variable de entorno `SPRING_DATASOURCE_PASSWORD`** (configuración de ejecución de IntelliJ). **Nunca** se escribe en `application.yml` ni se sube al repo.
 - Variables de entorno disponibles: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `WASIMASI_JWT_SECRET` (mín. 32 caracteres), `WASIMASI_JWT_EXPIRACION_MINUTOS`, `WASIMASI_CORS_ALLOWED_ORIGINS`.
-- Antes de abrir un PR, el frontend debe compilar sin errores: `npx ng build`.
+- Antes de abrir un PR, el frontend debe compilar sin errores: `mise run frontend-build` (o `npx ng build` dentro de `frontend/`).
 
 ---
 
@@ -114,7 +126,7 @@ shared/layout/      auth-layout y main-layout (barra web + navegación inferior 
    - Íconos: Material Symbols Outlined (`<mat-icon>search</mat-icon>`).
    - Responsive: debe verse bien en web y en móvil (corte en 768px).
 7. **Accesibilidad (WCAG AA)**: contraste mínimo 4.5:1, `aria-label` en botones solo con ícono, `alt` en imágenes, foco visible, formularios con `mat-label` y mensajes de error.
-8. Dependencias nuevas solo si hacen falta de verdad (ej. Leaflet para el mapa). Instálalas con `npm install` para que queden en `package.json`.
+8. Dependencias nuevas solo si hacen falta de verdad (ej. Leaflet para el mapa). Instálalas con `npm install <paquete>` dentro de `frontend/` (o `mise exec -- npm install <paquete>` desde la raíz) para que queden en `package.json`.
 
 ## 6. Landing (`landing/`)
 
@@ -139,7 +151,7 @@ HTML/CSS/JS puro. Los textos usan `data-i18n="clave"` y se traducen en `js/main.
    docs: endpoints de visitas en Postman
    ```
 4. Cada integrante hace **sus propios commits con su propia cuenta de GitHub** (cuentan para Contributors). Un asistente de IA **no** debe hacer commit ni push en nombre de alguien.
-5. Antes de abrir el PR: `git pull origin develop` en tu rama, resuelve conflictos, verifica que el backend arranque y que `npx ng build` pase.
+5. Antes de abrir el PR: `git pull origin develop` en tu rama, resuelve conflictos, verifica que el backend arranque y que `mise run frontend-build` pase.
 6. **PR hacia `develop`** (¡no hacia `main`!), con descripción de qué US cubre. Lo revisa otro integrante antes del merge.
 7. `main` solo recibe merges de `develop` en un release (tag SemVer, ej. `v2.0.0`).
 
@@ -185,7 +197,7 @@ Los bloques 2, 3, 4 y 5 son independientes y se pueden hacer en cualquier orden.
 ## 11. Checklist antes de abrir el PR
 
 - [ ] El backend arranca y los endpoints nuevos responden en Postman (incluye el caso de error).
-- [ ] `npx ng build` compila sin errores.
+- [ ] `mise run frontend-build` compila sin errores.
 - [ ] Textos nuevos en español **e** inglés.
 - [ ] Se ve bien en web y en móvil.
 - [ ] Nada de datos simulados ni secretos en el diff.
