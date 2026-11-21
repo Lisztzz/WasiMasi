@@ -53,7 +53,27 @@
           <div><dt>{{ 'detalle.precio' | t }}</dt><dd>S/ {{ p.precio | number: '1.0-2' }}</dd></div>
           <div><dt>{{ 'detalle.estado' | t }}</dt><dd>{{ 'estado.' + p.estado | t }}</dd></div>
           <div><dt>{{ 'detalle.publicado' | t }}</dt><dd>{{ fecha() }}</dd></div>
+          @if (mascotasTexto(); as texto) {
+            <div><dt>{{ 'buscar.mascotas' | t }}</dt><dd>{{ texto }}</dd></div>
+          }
+          @if (generoTexto(); as texto) {
+            <div><dt>{{ 'buscar.genero' | t }}</dt><dd>{{ texto }}</dd></div>
+          }
+          @if (serviciosTexto(); as texto) {
+            <div><dt>{{ 'buscar.servicios' | t }}</dt><dd>{{ texto }}</dd></div>
+          }
+          @if (coordenadasTexto(); as texto) {
+            <div><dt>{{ 'detalle.ubicacion' | t }}</dt><dd>{{ texto }}</dd></div>
+          }
         </dl>
+
+        <!-- US10 - Ubicación de la habitación -->
+        @if (mapaPublicacion().length) {
+          <section class="ubicacion" [attr.aria-label]="'buscar.mapa' | t">
+            <h2>{{ 'detalle.ubicacion' | t }}</h2>
+            <app-mapa-resultados [publicaciones]="mapaPublicacion()" />
+          </section>
+        }
       </div>
 
       <aside class="wm-card resumen" [attr.aria-label]="'detalle.anfitrion' | t">

@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { FiltrosBusqueda, Publicacion, PublicacionRequest } from '../models/publicacion.model';
 import { normalizarZona } from '../utils/distritos';
 
-/** Publicaciones de habitaciones (US06 publicar, US08 buscar, US11 detalle). */
+/** Publicaciones de habitaciones (US06 publicar, US08 buscar, US09 condiciones, US11 detalle). */
 @Injectable({ providedIn: 'root' })
 export class PublicacionService {
   private readonly http = inject(HttpClient);
@@ -14,13 +14,27 @@ export class PublicacionService {
   /** Última búsqueda, para volver a los resultados desde el detalle. */
   readonly ultimaBusqueda = signal<FiltrosBusqueda | null>(null);
 
-  /** GET /publicaciones?zona&precioMin&precioMax (solo publicaciones ACTIVA). */
+  /**
+   * GET /publicaciones?zona&precioMin&precioMax [&mascotas&genero&servicios]
+   * Solo publicaciones ACTIVA. Los filtros de US09 son opcionales: no se envían
+   * cuando el usuario no los eligió, para no alterar el contrato anterior.
+   */
   buscar(filtros: FiltrosBusqueda): Observable<Publicacion[]> {
     this.ultimaBusqueda.set(filtros);
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('zona', normalizarZona(filtros.zona))
       .set('precioMin', filtros.precioMin)
       .set('precioMax', filtros.precioMax);
+
+    if (filtros.mascotas !== undefined) {
+      params = params.set('mascotas', filtros.mascotas);
+    }
+    if (filtros.genero) {
+      params = params.set('genero', filtros.genero);
+    }
+    if (filtros.servicios) {
+      params = params.set('servicios', filtros.servicios);
+    }
     return this.http.get<Publicacion[]>(this.api, { params });
   }
 

@@ -19,6 +19,10 @@ p { margin: 0; }
   font: var(--mat-sys-body-medium);
   display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+.condiciones { display: flex; flex-wrap: wrap; gap: 6px 12px; font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
+.condiciones span, .coordenadas { display: inline-flex; align-items: center; gap: 4px; }
+.condiciones mat-icon, .coordenadas mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.coordenadas { font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
 .anfitrion { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: var(--mat-sys-label-large); margin-top: auto; }
 a { margin-top: 4px; }
 @media (max-width: 768px) { .foto { height: 160px; } }

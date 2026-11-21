@@ -34,6 +34,33 @@
         </mat-form-field>
       </div>
 
+      <!-- US09 - Condiciones negociables/no negociables -->
+      <div class="condiciones" [attr.aria-label]="'buscar.condiciones' | t">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'buscar.mascotas' | t }}</mat-label>
+          <mat-select formControlName="mascotas">
+            <mat-option value="">{{ 'buscar.cualquier' | t }}</mat-option>
+            <mat-option value="1">{{ 'buscar.si' | t }}</mat-option>
+            <mat-option value="0">{{ 'buscar.no' | t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'buscar.genero' | t }}</mat-label>
+          <mat-select formControlName="genero">
+            <mat-option value="">{{ 'buscar.cualquier' | t }}</mat-option>
+            <mat-option value="M">{{ 'buscar.masculino' | t }}</mat-option>
+            <mat-option value="F">{{ 'buscar.femenino' | t }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'buscar.servicios' | t }}</mat-label>
+          <input matInput formControlName="servicios" [placeholder]="'buscar.serviciosEjemplo' | t" />
+          <mat-hint>{{ 'buscar.serviciosAyuda' | t }}</mat-hint>
+        </mat-form-field>
+      </div>
+
       <button mat-flat-button type="submit" class="boton" [disabled]="cargando()">
         <mat-icon>search</mat-icon>{{ 'buscar.boton' | t }}
       </button>
@@ -65,12 +92,26 @@
         <h2>{{ textoResultados() }}</h2>
         <span>{{ 'buscar.soloActivas' | t }}</span>
       </div>
+
       @if (lista.length) {
-        <ul class="grilla">
-          @for (p of lista; track p.id) {
-            <li><app-publicacion-card [publicacion]="p" /></li>
-          }
-        </ul>
+        <div class="vistas" role="group" [attr.aria-label]="'buscar.vistas' | t">
+          <button mat-stroked-button type="button" [class.activa]="vista() === 'lista'" (click)="vista.set('lista')">
+            <mat-icon>grid_view</mat-icon>{{ 'buscar.vistaLista' | t }}
+          </button>
+          <button mat-stroked-button type="button" [class.activa]="vista() === 'mapa'" (click)="vista.set('mapa')">
+            <mat-icon>map</mat-icon>{{ 'buscar.vistaMapa' | t }}
+          </button>
+        </div>
+
+        @if (vista() === 'mapa') {
+          <app-mapa-resultados [publicaciones]="lista" />
+        } @else {
+          <ul class="grilla">
+            @for (p of lista; track p.id) {
+              <li><app-publicacion-card [publicacion]="p" /></li>
+            }
+          </ul>
+        }
       } @else {
         <div class="vacio">
           <mat-icon aria-hidden="true">search_off</mat-icon>

@@ -11,13 +11,20 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Publicacion } from '../../../core/models/publicacion.model';
 import { PublicacionService } from '../../../core/services/publicacion.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
+import {
+  textoCoordenadas, textoGenero, textoMascotas, textoServicios,
+} from '../../../core/utils/condiciones-publicacion';
+import { MapaResultados } from '../../../shared/components/mapa-resultados/mapa-resultados';
 import { SelloVerificacion } from '../../../shared/components/sello-verificacion/sello-verificacion';
 import { iniciales } from '../../../shared/layout/main-layout/main-layout';
 
 /** US11 - Detalle de una habitación (mock-up 04). */
 @Component({
   selector: 'app-detalle',
-  imports: [DecimalPipe, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe, SelloVerificacion],
+  imports: [
+    DecimalPipe, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe,
+    MapaResultados, SelloVerificacion,
+  ],
   templateUrl: './detalle.html',
   styleUrl: './detalle.scss',
 })
@@ -38,6 +45,30 @@ export class Detalle {
   /** Para "Volver a resultados" con los mismos filtros. */
   protected readonly volverParams = computed(() => this.publicaciones.ultimaBusqueda() ?? {});
   protected readonly inicialesAnfitrion = computed(() => iniciales(this.publicacion()?.anfitrionNombre));
+
+  /** US09/US10 - Condiciones y ubicación de la habitación. */
+  protected readonly mascotasTexto = computed(() => {
+    const p = this.publicacion();
+    return p ? textoMascotas(p, this.i18n) : null;
+  });
+  protected readonly generoTexto = computed(() => {
+    const p = this.publicacion();
+    return p ? textoGenero(p, this.i18n) : null;
+  });
+  protected readonly serviciosTexto = computed(() => {
+    const p = this.publicacion();
+    return p ? textoServicios(p) : null;
+  });
+  protected readonly coordenadasTexto = computed(() => {
+    const p = this.publicacion();
+    return p ? textoCoordenadas(p, this.i18n) : null;
+  });
+  /** El mapa del detalle muestra únicamente esta publicación. */
+  protected readonly mapaPublicacion = computed(() => {
+    const p = this.publicacion();
+    return p?.latitud != null && p.longitud != null ? [p] : [];
+  });
+
   protected readonly fecha = computed(() => {
     const p = this.publicacion();
     if (!p?.fechaPublicacion) return '';

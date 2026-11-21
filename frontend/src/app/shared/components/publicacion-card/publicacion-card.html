@@ -12,6 +12,25 @@
     <p class="precio" [id]="'precio-' + p.id">S/ {{ p.precio | number: '1.0-2' }} <span>{{ 'pub.mes' | t }}</span></p>
     <p class="zona"><mat-icon aria-hidden="true">location_on</mat-icon>{{ p.zona }}</p>
     <p class="descripcion">{{ p.descripcion }}</p>
+
+    <!-- US09 - Condiciones negociables/no negociables -->
+    <div class="condiciones">
+      @if (mascotasTexto(); as texto) {
+        <span><mat-icon aria-hidden="true">pets</mat-icon>{{ 'buscar.mascotas' | t }}: {{ texto }}</span>
+      }
+      @if (generoTexto(); as texto) {
+        <span><mat-icon aria-hidden="true">wc</mat-icon>{{ 'buscar.genero' | t }}: {{ texto }}</span>
+      }
+      @if (serviciosTexto(); as texto) {
+        <span><mat-icon aria-hidden="true">bolt</mat-icon>{{ 'buscar.servicios' | t }}: {{ texto }}</span>
+      }
+    </div>
+
+    <!-- US10 - Coordenadas de la publicación -->
+    @if (coordenadasTexto(); as texto) {
+      <p class="coordenadas"><mat-icon aria-hidden="true">map</mat-icon>{{ texto }}</p>
+    }
+
     <div class="anfitrion">
       <span>{{ p.anfitrionNombre }}</span>
       <app-sello-verificacion [verificado]="p.anfitrionVerificado" />
