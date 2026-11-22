@@ -45,7 +45,7 @@ y `mvn` directamente dentro de cada carpeta.
 
 - Base de datos local: PostgreSQL, base `wasimasi`.
 - **La contraseña de la base va SOLO en la variable de entorno `SPRING_DATASOURCE_PASSWORD`** (configuración de ejecución de IntelliJ). **Nunca** se escribe en `application.yml` ni se sube al repo.
-- Variables de entorno disponibles: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `WASIMASI_JWT_SECRET` (mín. 32 caracteres), `WASIMASI_JWT_EXPIRACION_MINUTOS`, `WASIMASI_CORS_ALLOWED_ORIGINS`.
+- Variables de entorno disponibles: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `WASIMASI_JWT_SECRET` (mín. 32 caracteres), `WASIMASI_JWT_EXPIRACION_MINUTOS`, `WASIMASI_CORS_ALLOWED_ORIGINS`, `GROQ_API_KEY` (agente de IA; sin ella el backend arranca igual y `/agente/consultas` responde 503), `WASIMASI_IA_BASE_URL`, `WASIMASI_IA_MODELO`.
 - Antes de abrir un PR, pasan los tests y el frontend compila sin errores:
   `mise run backend-test`, `mise run frontend-test` y `mise run frontend-build`
   (o `mvn test` en `backend/` y `npx ng test --watch=false` / `npx ng build` en `frontend/`).

@@ -44,14 +44,12 @@
       "key": "visitaRechazoId",
       "value": "",
       "type": "string"
-    }
-,
+    },
     {
       "key": "conversacionId",
       "value": "",
       "type": "string"
-    }
-,
+    },
     {
       "key": "mensajeUs13ClienteId",
       "value": "",
@@ -59,16 +57,6 @@
     },
     {
       "key": "mensajeUs13Id",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "visitaId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "visitaRechazoId",
       "value": "",
       "type": "string"
     },
@@ -86,6 +74,14 @@
       "key": "mensajeGrupoId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "accionAgenteId",
+      "value": ""
+    },
+    {
+      "key": "publicacionAgenteId",
+      "value": ""
     }
   ],
   "item": [
@@ -811,7 +807,7 @@
           }
         },
         {
-          "name": "Buscar y registrar filtros an?nimos (US08, US20)",
+          "name": "Buscar y registrar filtros anónimos (US08, US20)",
           "event": [
             {
               "listen": "test",
@@ -1301,764 +1297,6 @@
                     }
                   ]
                 }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Gestión de publicaciones (US07 y US18)",
-      "item": [
-        {
-          "name": "Mis publicaciones (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  const publicaciones = pm.response.json();",
-                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.true;",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/mias",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "mias"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Editar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().titulo).to.eql('Habitación amoblada');",
-                  "  pm.expect(pm.response.json().precio).to.eql(700);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"titulo\": \"Habitación amoblada\",\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"descripcion\": \"Habitación con escritorio\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
-            }
-          }
-        },
-        {
-          "name": "Pausar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('PAUSADA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"PAUSADA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Activar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('ACTIVA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"ACTIVA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Marcar publicación como ocupada (US18)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('OCUPADA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"OCUPADA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Buscar después de marcar como ocupada (US18)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  const publicaciones = pm.response.json();",
-                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.false;",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/publicaciones",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Cambiar estado inválido (US07, 400)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 400', () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"BORRADOR\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Editar como buscador (US07, 403)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 403', () => pm.response.to.have.status(403));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Visitas e interesados (US16, US17, US19)",
-      "item": [
-        {
-          "name": "Solicitar visita (US16, 201)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-20T15:30:00\",\n  \"comentario\": \"Me gustaría conocer la habitación y coordinar los detalles.\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "  pm.collectionVariables.set('visitaId', pm.response.json().id);",
-                  "}",
-                  "pm.test('status 201', () => pm.response.to.have.status(201));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Solicitar visita duplicada pendiente (US16, 409)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-21T15:30:00\",\n  \"comentario\": \"Segunda solicitud pendiente.\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 409', () => pm.response.to.have.status(409));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Ver visitas recibidas (US17)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/visitas/mis-visitas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas",
-                "mis-visitas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Confirmar visita (US17)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas/{{visitaId}}/respuesta",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas",
-                "{{visitaId}}",
-                "respuesta"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Solicitar visita para probar rechazo (US16, 201)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "  pm.collectionVariables.set('visitaRechazoId', pm.response.json().id);",
-                  "}",
-                  "pm.test('status 201', () => pm.response.to.have.status(201));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"publicacionId\": {{publicacionId}},\n  \"fechaHora\": \"2030-05-22T15:30:00\",\n  \"comentario\": \"Puedo adaptarme a otro horario.\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Rechazar sin motivo (US17, 400)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas/{{visitaRechazoId}}/respuesta",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas",
-                "{{visitaRechazoId}}",
-                "respuesta"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"RECHAZADA\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 400', () => pm.response.to.have.status(400));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Rechazar visita con motivo (US17)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/visitas/{{visitaRechazoId}}/respuesta",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas",
-                "{{visitaRechazoId}}",
-                "respuesta"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"RECHAZADA\",\n  \"motivoRespuesta\": \"El horario propuesto ya está reservado.\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Comparar interesados por publicación (US19)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/visitas/publicacion/{{publicacionId}}/interesados",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "visitas",
-                "publicacion",
-                "{{publicacionId}}",
-                "interesados"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));"
-                ]
               }
             }
           ]
@@ -2721,8 +1959,13 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/conversaciones/no-leidos",
-              "host": ["{{base_url}}"],
-              "path": ["conversaciones", "no-leidos"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversaciones",
+                "no-leidos"
+              ]
             },
             "auth": {
               "type": "bearer",
@@ -2754,283 +1997,46 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/conversaciones/no-leidos",
-              "host": ["{{base_url}}"],
-              "path": ["conversaciones", "no-leidos"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "conversaciones",
+                "no-leidos"
+              ]
             },
-            "auth": { "type": "noauth" }
+            "auth": {
+              "type": "noauth"
+            }
           }
         }
       ]
     },
     {
-      "name": "Gestión de publicaciones (US07 y US18)",
+      "name": "Comunicación (US15) - 1. Vivienda y requisito de visita",
       "item": [
         {
-          "name": "Mis publicaciones (US07)",
+          "name": "Publicar la segunda habitación de la vivienda",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  const publicaciones = pm.response.json();",
-                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.true;",
-                  "});"
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('segundaPublicacionId', pm.response.json().id);"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/mias",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "mias"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Editar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().titulo).to.eql('Habitación amoblada');",
-                  "  pm.expect(pm.response.json().precio).to.eql(700);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"titulo\": \"Habitación amoblada\",\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"descripcion\": \"Habitación con escritorio\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
-            }
-          }
-        },
-        {
-          "name": "Pausar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('PAUSADA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"PAUSADA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Activar publicación (US07)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('ACTIVA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"ACTIVA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Marcar publicación como ocupada (US18)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  pm.expect(pm.response.json().estado).to.eql('OCUPADA');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"estado\": \"OCUPADA\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Buscar después de marcar como ocupada (US18)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('contenido de la respuesta', () => {",
-                  "  const publicaciones = pm.response.json();",
-                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.false;",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{base_url}}/publicaciones",
               "host": [
@@ -3045,28 +2051,38 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{tokenBuscador}}",
+                  "value": "{{tokenAnfitrion}}",
                   "type": "string"
                 }
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 600,\n  \"descripcion\": \"Segunda habitación de la misma vivienda\",\n  \"fotos\": [\n    \"https://example.com/foto2.jpg\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Cambiar estado inválido (US07, 400)",
+          "name": "Crear vivienda",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('viviendaId', pm.response.json().id);"
                 ]
               }
             }
           ],
           "request": {
-            "method": "PATCH",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -3074,14 +2090,12 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
+              "raw": "{{base_url}}/viviendas",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "estado"
+                "viviendas"
               ]
             },
             "auth": {
@@ -3096,19 +2110,62 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"estado\": \"BORRADOR\"\n}"
+              "raw": "{\n  \"nombre\": \"Vivienda US15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Editar como buscador (US07, 403)",
+          "name": "Listar viviendas propias",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('incluye la vivienda creada', () => pm.expect(pm.response.json().some(v => v.id === Number(pm.collectionVariables.get('viviendaId')))).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/viviendas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "viviendas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Vincular la primera habitación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
                 ]
               }
             }
@@ -3122,13 +2179,115 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/vivienda",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "publicaciones",
-                "{{publicacionId}}"
+                "{{publicacionId}}",
+                "vivienda"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"viviendaId\": {{viviendaId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Vincular la segunda habitación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{segundaPublicacionId}}/vivienda",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{segundaPublicacionId}}",
+                "vivienda"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"viviendaId\": {{viviendaId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Abrir grupo sin visita confirmada (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+                  "pm.test('requisito visible', () => pm.expect(pm.response.json().message).to.eql('Necesitas una visita confirmada para unirte a este grupo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/grupos/{{viviendaId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "grupos",
+                "{{viviendaId}}"
               ]
             },
             "auth": {
@@ -3140,10 +2299,6 @@
                   "type": "string"
                 }
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
             }
           }
         }
@@ -3521,244 +2676,8 @@
       ]
     },
     {
-      "name": "Comunicación (US15)",
-      "description": "Inicia sesión con ambos roles. Publica dos habitaciones activas del mismo anfitrión y guarda sus IDs en publicacionId y segundaPublicacionId. Crea una vivienda, vincula ambas habitaciones y comprueba el 403 con el buscador. Solicita y confirma una visita usando Visitas e interesados. Prueba el chat abierto y luego marca ambas habitaciones OCUPADA usando Gestión de publicaciones para comprobar el historial de solo lectura.",
+      "name": "Comunicación (US15) - 2. Chat grupal tras confirmar la visita",
       "item": [
-        {
-          "name": "Crear vivienda",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
-                  "if (pm.response.code === 201) pm.collectionVariables.set('viviendaId', pm.response.json().id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/viviendas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "viviendas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Vivienda US15\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Listar viviendas propias",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('incluye la vivienda creada', () => pm.expect(pm.response.json().some(v => v.id === Number(pm.collectionVariables.get('viviendaId')))).to.be.true);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/viviendas",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "viviendas"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Vincular la primera habitación",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/vivienda",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{publicacionId}}",
-                "vivienda"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"viviendaId\": {{viviendaId}}}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Vincular la segunda habitación",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/publicaciones/{{segundaPublicacionId}}/vivienda",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "publicaciones",
-                "{{segundaPublicacionId}}",
-                "vivienda"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAnfitrion}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"viviendaId\": {{viviendaId}}}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Abrir grupo sin visita confirmada (403)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
-                  "pm.test('requisito visible', () => pm.expect(pm.response.json().message).to.eql('Necesitas una visita confirmada para unirte a este grupo'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/grupos/{{viviendaId}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "grupos",
-                "{{viviendaId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenBuscador}}",
-                  "type": "string"
-                }
-              ]
-            }
-          }
-        },
         {
           "name": "Ver el grupo en la bandeja después de confirmar",
           "event": [
@@ -3949,6 +2868,465 @@
               }
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Gestión de publicaciones (US07 y US18)",
+      "item": [
+        {
+          "name": "Mis publicaciones (US07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  const publicaciones = pm.response.json();",
+                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/mias",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "mias"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar publicación (US07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  pm.expect(pm.response.json().titulo).to.eql('Habitación amoblada');",
+                  "  pm.expect(pm.response.json().precio).to.eql(700);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Habitación amoblada\",\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"descripcion\": \"Habitación con escritorio\",\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Pausar publicación (US07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  pm.expect(pm.response.json().estado).to.eql('PAUSADA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PAUSADA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activar publicación (US07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  pm.expect(pm.response.json().estado).to.eql('ACTIVA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ACTIVA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Marcar publicación como ocupada (US18)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  pm.expect(pm.response.json().estado).to.eql('OCUPADA');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"OCUPADA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Buscar después de marcar como ocupada (US18)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contenido de la respuesta', () => {",
+                  "  const publicaciones = pm.response.json();",
+                  "  pm.expect(publicaciones.some(p => String(p.id) === String(pm.collectionVariables.get('publicacionId')))).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=0&precioMax=5000",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ],
+              "query": [
+                {
+                  "key": "zona",
+                  "value": "Jesus Maria"
+                },
+                {
+                  "key": "precioMin",
+                  "value": "0"
+                },
+                {
+                  "key": "precioMax",
+                  "value": "5000"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado inválido (US07, 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}/estado",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"BORRADOR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar como buscador (US07, 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{publicacionId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{publicacionId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"fotos\": [\n    \"https://example.com/foto1.jpg\"\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comunicación (US15) - 3. Grupo cerrado al ocupar la vivienda",
+      "item": [
+        {
+          "name": "Marcar la segunda habitación como ocupada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones/{{segundaPublicacionId}}/estado",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones",
+                "{{segundaPublicacionId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"OCUPADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         },
         {
           "name": "Consultar el historial tras ocupar las dos habitaciones",
@@ -4038,6 +3416,361 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"clienteId\": \"{{$guid}}\",\n  \"contenido\": \"Mensaje posterior al cierre.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agente de IA (US21 y US22)",
+      "description": "Requiere la variable de entorno GROQ_API_KEY en el backend. El agente solo propone la visita: se crea al confirmar.",
+      "item": [
+        {
+          "name": "Publicar habitación para probar el agente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('publicacionAgenteId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/publicaciones",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "publicaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"Santiago de Surco\",\n  \"precio\": 650,\n  \"descripcion\": \"Habitación amoblada a 5 cuadras de la UPC Monterrico\",\n  \"fotos\": [\n    \"https://example.com/foto3.jpg\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Consultar al agente en lenguaje natural (US21)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Trae respuesta y publicaciones reales', () => { pm.expect(r.respuesta).to.be.a('string'); pm.expect(r.publicaciones).to.be.an('array'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/consultas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "consultas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Busco un cuarto en Santiago de Surco hasta 900 soles\",\n  \"historial\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Pedir al agente que proponga una visita (US22)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('Propone una acción PENDIENTE (no la ejecuta)', () => pm.expect(r.accionPendiente && r.accionPendiente.estado).to.eql('PENDIENTE'));",
+                  "if (r.accionPendiente) pm.collectionVariables.set('accionAgenteId', r.accionPendiente.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/consultas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "consultas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"Quiero visitar la habitación {{publicacionAgenteId}} pasado mañana a las 4 de la tarde\",\n  \"historial\": [\n    {\n      \"rol\": \"USUARIO\",\n      \"contenido\": \"Busco un cuarto en Santiago de Surco hasta 900 soles\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Confirmar la acción del agente como anfitrión (US22, 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/acciones/{{accionAgenteId}}/confirmar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "acciones",
+                "{{accionAgenteId}}",
+                "confirmar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAnfitrion}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirmar la acción del agente (US22)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Crea la visita', () => { const a = pm.response.json(); pm.expect(a.estado).to.eql('CONFIRMADA'); pm.expect(a.visitaId).to.be.a('number'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/acciones/{{accionAgenteId}}/confirmar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "acciones",
+                "{{accionAgenteId}}",
+                "confirmar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirmar dos veces (US22, 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/acciones/{{accionAgenteId}}/confirmar",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "acciones",
+                "{{accionAgenteId}}",
+                "confirmar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consulta vacía (US21, 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agente/consultas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "agente",
+                "consultas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBuscador}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensaje\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
