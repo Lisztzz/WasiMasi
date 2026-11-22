@@ -2,17 +2,36 @@
 
 .barra {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 10px var(--wm-page-padding);
+  gap: 16px;
+  padding: 10px clamp(16px, calc((100% - 900px) / 2), var(--wm-page-padding));
   background: var(--wm-white); border-bottom: 1px solid var(--wm-border);
   position: sticky; top: 0; z-index: 10;
 }
 .izquierda, .derecha { display: flex; align-items: center; }
-.izquierda { gap: 48px; }
-.derecha { gap: 12px; }
+.izquierda { gap: clamp(16px, 4vw, 48px); min-width: 0; }
+.derecha { gap: 12px; flex-shrink: 0; }
 .inicio { text-decoration: none; display: inline-flex; }
-.nav-web { display: flex; gap: 32px; }
-.nav-web a { font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+.nav-web { display: flex; flex-wrap: wrap; gap: 4px clamp(12px, 2.5vw, 32px); }
+.nav-web a {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none;
+  padding: 6px 0; border-bottom: 2px solid transparent;
+}
 .nav-web a.activo { color: var(--wm-secondary); font-weight: 500; border-bottom-color: var(--wm-secondary); }
+.icono-mensajes { display: inline-flex; }
+.contador {
+  align-self: start;
+  margin-block-start: -4px;
+  margin-inline-start: -4px;
+  min-width: 16px;
+  box-sizing: border-box;
+  padding-inline: 4px;
+  border-radius: 100px;
+  background: var(--wm-error);
+  color: var(--wm-white);
+  font: var(--mat-sys-label-small);
+  text-align: center;
+}
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   background: var(--wm-primary); color: var(--wm-surface); font: var(--mat-sys-label-large);
@@ -30,7 +49,7 @@ main { flex: 1; outline: none; }
 .nav-mobile { display: none; }
 
 @media (max-width: 768px) {
-  .barra { padding: 8px 16px; }
+  .barra { gap: 0; padding: 8px 16px; }
   .nav-web { display: none; }
   .pie { padding-bottom: 88px; justify-content: center; }
   .nav-mobile {
@@ -40,9 +59,10 @@ main { flex: 1; outline: none; }
   }
   .nav-mobile a {
     display: flex; flex-direction: column; align-items: center; gap: 4px;
+    flex: 1; min-width: 0; text-align: center;
     font: var(--mat-sys-label-medium); color: var(--wm-on-surface); text-decoration: none;
   }
-  .indicador { display: inline-flex; padding: 4px 20px; border-radius: 100px; }
+  .indicador { display: inline-flex; padding: 4px clamp(4px, 2vw, 20px); border-radius: 100px; }
   .nav-mobile a.activo { color: var(--wm-primary); font-weight: 500; }
   .nav-mobile a.activo .indicador { background: var(--wm-container); color: var(--wm-on-container); }
 }

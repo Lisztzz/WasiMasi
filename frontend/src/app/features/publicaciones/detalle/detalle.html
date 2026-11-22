@@ -66,9 +66,132 @@
           </div>
         </div>
         <div class="acciones">
-          <button mat-flat-button type="button" (click)="proximamente()">{{ 'detalle.contactar' | t }}</button>
-          <button mat-stroked-button type="button" (click)="proximamente()">{{ 'detalle.visita' | t }}</button>
+          @if (puedeContactar()) {
+            <button mat-flat-button type="button" [disabled]="contactando()" (click)="contactar(p)">
+              {{ (contactando() ? 'mensajes.cargando' : 'detalle.contactar') | t }}
+            </button>
+          }
+          @if (puedeSolicitarVisita()) {
+            <button mat-stroked-button type="button" (click)="alternarFormularioVisita()"
+                    [attr.aria-expanded]="mostrarFormularioVisita()">
+              {{ 'detalle.visita' | t }}
+            </button>
+          }
         </div>
+        @if (errorContacto(); as mensaje) {
+          <p class="aviso error" role="alert">{{ mensaje }}</p>
+        }
+        @if (mostrarFormularioVisita() && puedeSolicitarVisita()) {
+          <form class="formulario-visita" [formGroup]="visitaForm" (ngSubmit)="solicitarVisita(p.id)">
+            <h2>{{ 'visitas.solicitarTitulo' | t }}</h2>
+            <p>{{ 'visitas.solicitarAyuda' | t }}</p>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'visitas.fecha' | t }}</mat-label>
+              <input matInput class="selector-fecha" [matDatepicker]="calendarioVisita"
+                     formControlName="fecha" [min]="fechaMinima()" readonly required
+                     (click)="calendarioVisita.open()" />
+              <mat-datepicker-toggle matIconSuffix [for]="calendarioVisita"
+                                     [aria-label]="'visitas.seleccionarFecha' | t"></mat-datepicker-toggle>
+              <mat-datepicker #calendarioVisita></mat-datepicker>
+              @if (visitaForm.controls.fecha.hasError('required') && visitaForm.controls.fecha.touched) {
+                <mat-error>{{ 'val.requerido' | t }}</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'visitas.hora' | t }}</mat-label>
+              <input matInput type="text" readonly [value]="horaFormateada()"
+                     [placeholder]="'visitas.seleccionarUnaHora' | t"
+                     [attr.aria-label]="'visitas.hora' | t" [attr.aria-expanded]="selectorHoraAbierto()"
+                     aria-haspopup="dialog" (click)="abrirSelectorHora()" />
+              <button mat-icon-button matSuffix type="button" (click)="abrirSelectorHora()"
+                      [attr.aria-label]="'visitas.abrirSelectorHora' | t">
+                <mat-icon aria-hidden="true">schedule</mat-icon>
+              </button>
+              @if (visitaForm.controls.hora.hasError('required') && visitaForm.controls.hora.touched) {
+                <mat-error>{{ 'val.requerido' | t }}</mat-error>
+              }
+            </mat-form-field>
+            @if (selectorHoraAbierto()) {
+              <section class="selector-hora" role="dialog" [attr.aria-label]="'visitas.selectorHoraTitulo' | t">
+                <header class="selector-hora__encabezado">
+                  <div>
+                    <h3>{{ 'visitas.selectorHoraTitulo' | t }}</h3>
+                    <p>{{ horaEnSelector() }}</p>
+                  </div>
+                </header>
+                <div class="selector-hora__columnas">
+                  <div class="selector-hora__columna">
+                    <span>{{ 'visitas.hora' | t }}</span>
+                    <div class="selector-hora__lista" role="group" [attr.aria-label]="'visitas.hora' | t">
+                      @for (hora of horasReloj(); track hora) {
+                        <button class="selector-hora__opcion" [class.seleccionada]="hora === horaReloj()"
+                                type="button" (click)="elegirHoraReloj(hora)" [attr.aria-pressed]="hora === horaReloj()">
+                          {{ formatearDosDigitos(hora) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <div class="selector-hora__columna">
+                    <span>{{ 'visitas.minutos' | t }}</span>
+                    <div #listaMinutos class="selector-hora__lista selector-hora__lista--minutos"
+                         role="group" [attr.aria-label]="'visitas.minutos' | t" (scroll)="ajustarBucleMinutos($event)">
+                      @for (minuto of minutosReloj; track minuto.indice) {
+                        <button class="selector-hora__opcion" [class.seleccionada]="minuto.valor === minutoReloj()"
+                                type="button" (click)="elegirMinutoReloj(minuto.valor)"
+                                [attr.aria-pressed]="minuto.valor === minutoReloj()">
+                          {{ formatearDosDigitos(minuto.valor) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <div class="selector-hora__columna selector-hora__periodos">
+                    <span>{{ 'visitas.periodo' | t }}</span>
+                    <div class="selector-hora__lista" role="group" [attr.aria-label]="'visitas.periodo' | t">
+                      <button class="selector-hora__opcion" [class.seleccionada]="periodoReloj() === 'AM'"
+                              type="button" (click)="cambiarPeriodo('AM')" [attr.aria-pressed]="periodoReloj() === 'AM'">
+                        {{ 'visitas.periodoAM' | t }}
+                      </button>
+                      <button class="selector-hora__opcion" [class.seleccionada]="periodoReloj() === 'PM'"
+                              type="button" (click)="cambiarPeriodo('PM')" [attr.aria-pressed]="periodoReloj() === 'PM'">
+                        {{ 'visitas.periodoPM' | t }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <footer class="selector-hora__acciones">
+                  <button mat-button type="button" (click)="cancelarSelectorHora()">{{ 'visitas.cancelar' | t }}</button>
+                  <button mat-flat-button type="button" (click)="confirmarHora()">{{ 'visitas.usarHora' | t }}</button>
+                </footer>
+              </section>
+            }
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'visitas.comentario' | t }}</mat-label>
+              <textarea matInput formControlName="comentario" rows="3" maxlength="500"
+                        [attr.aria-label]="'visitas.comentario' | t"></textarea>
+              <mat-hint align="end">{{ visitaForm.controls.comentario.value.length }}/500</mat-hint>
+            </mat-form-field>
+            @if (errorVisita(); as mensaje) {
+              <p class="aviso error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ mensaje }}</p>
+            }
+            <div class="acciones-formulario">
+              <button mat-flat-button type="submit" [disabled]="enviandoVisita()">
+                @if (enviandoVisita()) {
+                  <mat-spinner diameter="20" aria-hidden="true" />
+                } @else {
+                  {{ 'visitas.solicitar' | t }}
+                }
+              </button>
+              <button mat-button type="button" (click)="alternarFormularioVisita()">{{ 'visitas.cancelar' | t }}</button>
+            </div>
+          </form>
+        }
+        @if (p.viviendaId; as viviendaId) {
+          <a mat-stroked-button [routerLink]="['/mensajes/grupos', viviendaId]">
+            <mat-icon aria-hidden="true">groups</mat-icon>{{ 'mensajes.abrirGrupo' | t }}
+          </a>
+        } @else if (esPropietario()) {
+          <app-vincular-vivienda [publicacionId]="p.id" (vinculada)="actualizarVivienda($event)" />
+        }
         <p class="consejo"><mat-icon aria-hidden="true">shield</mat-icon>{{ 'detalle.consejo' | t }}</p>
       </aside>
     </div>
