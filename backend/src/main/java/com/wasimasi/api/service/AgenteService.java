@@ -101,7 +101,8 @@ public class AgenteService {
                     .call()
                     .content();
         } catch (RuntimeException ex) {
-            log.warn("Fallo la consulta al modelo de IA: {}", ex.getMessage());
+            // El detalle (HTTP 401 clave inválida, 400 modelo no disponible, 429 límite, etc.) queda en la consola.
+            log.warn("Fallo la consulta al modelo de IA: {}", ex.toString(), ex);
             throw new ServicioNoDisponibleException(
                     "El asistente no pudo responder en este momento. Inténtalo de nuevo en unos segundos.");
         }
