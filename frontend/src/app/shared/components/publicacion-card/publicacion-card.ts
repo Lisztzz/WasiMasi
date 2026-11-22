@@ -7,7 +7,7 @@ import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { Publicacion } from '../../../core/models/publicacion.model';
 import {
-  textoCoordenadas, textoGenero, textoMascotas, textoServicios,
+  avisosCondiciones, esCondicionNegociable, textoCoordenadas, textoGenero, textoMascotas, textoServicios,
 } from '../../../core/utils/condiciones-publicacion';
 import { SelloVerificacion } from '../sello-verificacion/sello-verificacion';
 
@@ -31,6 +31,12 @@ export class PublicacionCard {
   protected readonly mascotasTexto = computed(() => textoMascotas(this.publicacion(), this.i18n));
   protected readonly generoTexto = computed(() => textoGenero(this.publicacion(), this.i18n));
   protected readonly serviciosTexto = computed(() => textoServicios(this.publicacion()));
+
+  /** US09 - Las condiciones que no están en la lista de fijas se muestran como negociables. */
+  protected readonly mascotasNegociable = computed(() => esCondicionNegociable(this.publicacion(), 'mascotas'));
+  protected readonly generoNegociable = computed(() => esCondicionNegociable(this.publicacion(), 'genero'));
+  protected readonly serviciosNegociable = computed(() => esCondicionNegociable(this.publicacion(), 'servicios'));
+  protected readonly avisos = computed(() => avisosCondiciones(this.publicacion(), this.i18n));
 
   /** US10 - Coordenadas, suspendidas si la publicación no las tiene. */
   protected readonly coordenadasTexto = computed(() => textoCoordenadas(this.publicacion(), this.i18n));

@@ -16,15 +16,39 @@
     <!-- US09 - Condiciones negociables/no negociables -->
     <div class="condiciones">
       @if (mascotasTexto(); as texto) {
-        <span><mat-icon aria-hidden="true">pets</mat-icon>{{ 'buscar.mascotas' | t }}: {{ texto }}</span>
+        <span>
+          <mat-icon aria-hidden="true">pets</mat-icon>{{ 'buscar.mascotas' | t }}: {{ texto }}
+          @if (mascotasNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }
+        </span>
       }
       @if (generoTexto(); as texto) {
-        <span><mat-icon aria-hidden="true">wc</mat-icon>{{ 'buscar.genero' | t }}: {{ texto }}</span>
+        <span>
+          <mat-icon aria-hidden="true">wc</mat-icon>{{ 'buscar.genero' | t }}: {{ texto }}
+          @if (generoNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }
+        </span>
       }
       @if (serviciosTexto(); as texto) {
-        <span><mat-icon aria-hidden="true">bolt</mat-icon>{{ 'buscar.servicios' | t }}: {{ texto }}</span>
+        <span>
+          <mat-icon aria-hidden="true">bolt</mat-icon>{{ 'buscar.servicios' | t }}: {{ texto }}
+          @if (serviciosNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }
+        </span>
       }
     </div>
+
+    <!-- US09 - Aviso: la condición es negociable y no coincide con lo que se buscó -->
+    @if (avisos().length) {
+      <div class="aviso-condiciones" role="status">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        <div>
+          <span>{{ 'buscar.avisoCondiciones' | t }}</span>
+          <ul>
+            @for (aviso of avisos(); track aviso) {
+              <li>{{ aviso }}</li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
 
     <!-- US10 - Coordenadas de la publicación -->
     @if (coordenadasTexto(); as texto) {

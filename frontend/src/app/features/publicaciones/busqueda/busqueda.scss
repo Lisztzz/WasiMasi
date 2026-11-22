@@ -5,6 +5,7 @@
 .zona { flex: 1; }
 .precios { display: flex; gap: 16px; }
 .precios mat-form-field { width: 170px; }
+.ayuda-condiciones { margin: 0 0 12px; font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
 .condiciones { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
 .condiciones mat-form-field { width: 170px; }
 .boton { height: 56px; }

@@ -78,6 +78,17 @@
             <mat-hint>{{ 'buscar.serviciosAyuda' | t }}</mat-hint>
           </mat-form-field>
         </div>
+
+        <!-- US09 - Un solo selector para separar las condiciones rígidas de las negociables -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="condiciones-fijas">
+          <mat-label>{{ 'publicar.condicionesFijas' | t }}</mat-label>
+          <mat-select formControlName="condicionesNoNegociables" multiple>
+            <mat-option value="mascotas">{{ 'buscar.mascotas' | t }}</mat-option>
+            <mat-option value="genero">{{ 'buscar.genero' | t }}</mat-option>
+            <mat-option value="servicios">{{ 'buscar.servicios' | t }}</mat-option>
+          </mat-select>
+          <mat-hint>{{ 'publicar.condicionesFijasAyuda' | t }}</mat-hint>
+        </mat-form-field>
       </fieldset>
 
       <fieldset class="extras">

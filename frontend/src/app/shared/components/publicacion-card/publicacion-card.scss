@@ -22,6 +22,17 @@ p { margin: 0; }
 .condiciones { display: flex; flex-wrap: wrap; gap: 6px 12px; font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
 .condiciones span, .coordenadas { display: inline-flex; align-items: center; gap: 4px; }
 .condiciones mat-icon, .coordenadas mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.negociable {
+  font-style: normal; padding: 0 6px; border-radius: 8px;
+  background: var(--wm-container); color: var(--wm-on-container); font-size: 0.8em;
+}
+.aviso-condiciones {
+  display: flex; gap: 6px; align-items: flex-start; margin: 0; padding: 8px 10px;
+  border-radius: 8px; background: var(--wm-container); color: var(--wm-on-container);
+  font: var(--mat-sys-body-small);
+}
+.aviso-condiciones mat-icon { font-size: 16px; width: 16px; height: 16px; flex: none; }
+.aviso-condiciones ul { margin: 4px 0 0; padding-left: 18px; }
 .coordenadas { font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
 .anfitrion { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: var(--mat-sys-label-large); margin-top: auto; }
 a { margin-top: 4px; }
