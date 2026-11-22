@@ -14,21 +14,26 @@ import com.wasimasi.api.model.Publicacion;
 import com.wasimasi.api.model.Usuario;
 import com.wasimasi.api.repository.PublicacionRepository;
 import com.wasimasi.api.repository.UsuarioRepository;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
- * Reglas de negocio de US06 (publicar), US08 (buscar) y US11 (ver detalle).
+ * Reglas de negocio de US06 (publicar), US08 (buscar), US09 (condiciones)
+ * y US11 (ver detalle).
  */
 @Service
 @RequiredArgsConstructor
 public class PublicacionService {
+
+    private static final Set<String> GENEROS_VALIDOS = Set.of("M", "F");
 
     private final PublicacionRepository publicacionRepository;
     private final UsuarioRepository usuarioRepository;
@@ -55,6 +60,11 @@ public class PublicacionService {
                 .precio(request.getPrecio())
                 .descripcion(request.getDescripcion())
                 .fotos(request.getFotos())
+                .mascotasPermitidas(request.getMascotasPermitidas())
+                .generoPreferido(normalizarGenero(request.getGeneroPreferido()))
+                .servicios(request.getServicios())
+                .latitud(request.getLatitud())
+                .longitud(request.getLongitud())
                 .estado(anfitrionVerificado ? EstadoPublicacion.ACTIVA : EstadoPublicacion.BORRADOR)
                 .build();
 
@@ -86,6 +96,11 @@ public class PublicacionService {
         publicacion.setDescripcion(request.descripcion());
         publicacion.getFotos().clear();
         publicacion.getFotos().addAll(request.fotos());
+        publicacion.setMascotasPermitidas(request.mascotasPermitidas());
+        publicacion.setGeneroPreferido(normalizarGenero(request.generoPreferido()));
+        publicacion.setServicios(request.servicios());
+        publicacion.setLatitud(request.latitud());
+        publicacion.setLongitud(request.longitud());
         return publicacionMapper.toResponseDTO(publicacion);
     }
 
@@ -112,30 +127,30 @@ public class PublicacionService {
         return publicacion;
     }
 
-    /** US08 y US18 - Buscar solo publicaciones activas con los filtros solicitados. */
+    /**
+     * US08, US09 y US18 - Busca habitaciones activas por zona y presupuesto y aplica,
+     * cuando llegan, los filtros de condiciones (mascotas, genero, servicios).
+     */
     @Transactional(readOnly = true)
-    public List<PublicacionResponseDTO> buscar(String zona, BigDecimal precioMin, BigDecimal precioMax) {
+    public List<PublicacionResponseDTO> buscar(String zona, BigDecimal precioMin, BigDecimal precioMax,
+                                               Boolean mascotas, String genero, String servicios) {
         if (precioMin != null && precioMax != null && precioMin.compareTo(precioMax) > 0) {
             throw new BadRequestException("El presupuesto minimo no puede ser mayor al maximo");
         }
 
+        String generoNormalizado = normalizarGenero(genero);
+        // "Any" significa que al buscador le da igual: no filtra por género.
+        final String generoFiltro = "Any".equals(generoNormalizado) ? null : generoNormalizado;
+        Set<String> serviciosPedidos = parsearServicios(servicios);
+
         return publicacionRepository
-                .findAll((publicacion, consulta, criterios) -> {
-                    List<Predicate> filtros = new ArrayList<>();
-                    filtros.add(criterios.equal(publicacion.get("estado"), EstadoPublicacion.ACTIVA));
-                    if (zona != null) {
-                        filtros.add(criterios.equal(criterios.lower(publicacion.get("zona")),
-                                criterios.lower(criterios.literal(zona))));
-                    }
-                    if (precioMin != null) {
-                        filtros.add(criterios.greaterThanOrEqualTo(publicacion.get("precio"), precioMin));
-                    }
-                    if (precioMax != null) {
-                        filtros.add(criterios.lessThanOrEqualTo(publicacion.get("precio"), precioMax));
-                    }
-                    return criterios.and(filtros.toArray(Predicate[]::new));
-                })
+                .findByEstadoAndZonaIgnoreCaseAndPrecioBetween(EstadoPublicacion.ACTIVA, zona, precioMin, precioMax)
                 .stream()
+                .filter(p -> mascotas == null || mascotas.equals(p.getMascotasPermitidas()))
+                .filter(p -> generoFiltro == null
+                        || generoFiltro.equals(p.getGeneroPreferido())
+                        || "Any".equals(p.getGeneroPreferido()))
+                .filter(p -> serviciosPedidos.isEmpty() || contieneServicios(p.getServicios(), serviciosPedidos))
                 .map(publicacionMapper::toResponseDTO)
                 .toList();
     }
@@ -145,5 +160,39 @@ public class PublicacionService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No se encontro la publicacion con id " + publicacionId));
         return publicacionMapper.toResponseDTO(publicacion);
+    }
+
+    /** Acepta M/F (o Any) sin importar mayúsculas; rejects any other value. */
+    private String normalizarGenero(String genero) {
+        if (genero == null || genero.isBlank()) {
+            return null;
+        }
+        String texto = genero.trim().toUpperCase(Locale.ROOT);
+        if ("ANY".equals(texto)) {
+            return "Any";
+        }
+        if (!GENEROS_VALIDOS.contains(texto)) {
+            throw new BadRequestException("El genero debe ser M, F o Any");
+        }
+        return texto;
+    }
+
+    /** Convierte "agua, wifi" en un conjunto de servicios normalizados. */
+    private Set<String> parsearServicios(String servicios) {
+        if (servicios == null || servicios.isBlank()) {
+            return Set.of();
+        }
+        Set<String> resultado = new LinkedHashSet<>();
+        Arrays.stream(servicios.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(s -> s.toLowerCase(Locale.ROOT))
+                .forEach(resultado::add);
+        return resultado;
+    }
+
+    /** La publicación debe incluir TODOS los servicios pedidos. */
+    private boolean contieneServicios(String serviciosPublicacion, Set<String> pedidos) {
+        return parsearServicios(serviciosPublicacion).containsAll(pedidos);
     }
 }

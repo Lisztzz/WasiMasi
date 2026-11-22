@@ -64,6 +64,61 @@
           }
         </mat-form-field>
 
+        <fieldset class="extras">
+          <legend>{{ 'publicar.condiciones' | t }}</legend>
+          <div class="campos-extra">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'buscar.mascotas' | t }}</mat-label>
+              <mat-select formControlName="mascotas">
+                <mat-option value="">{{ 'publicar.sinEspecificar' | t }}</mat-option>
+                <mat-option value="1">{{ 'buscar.si' | t }}</mat-option>
+                <mat-option value="0">{{ 'buscar.no' | t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'buscar.genero' | t }}</mat-label>
+              <mat-select formControlName="genero">
+                <mat-option value="">{{ 'publicar.sinEspecificar' | t }}</mat-option>
+                <mat-option value="Any">{{ 'buscar.cualquier' | t }}</mat-option>
+                <mat-option value="M">{{ 'buscar.masculino' | t }}</mat-option>
+                <mat-option value="F">{{ 'buscar.femenino' | t }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'buscar.servicios' | t }}</mat-label>
+              <input matInput formControlName="servicios" [placeholder]="'buscar.serviciosEjemplo' | t" />
+              <mat-hint>{{ 'buscar.serviciosAyuda' | t }}</mat-hint>
+            </mat-form-field>
+          </div>
+        </fieldset>
+
+        <fieldset class="extras">
+          <legend>{{ 'publicar.ubicacion' | t }}</legend>
+          <p class="ayuda">{{ 'publicar.ubicacionAyuda' | t }}</p>
+          <div class="campos-extra">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'publicar.latitud' | t }}</mat-label>
+              <input matInput type="number" step="any" formControlName="latitud" />
+              @if (form.controls.latitud.invalid) {
+                <mat-error>{{ 'val.latitud' | t }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'publicar.longitud' | t }}</mat-label>
+              <input matInput type="number" step="any" formControlName="longitud" />
+              @if (form.controls.longitud.invalid) {
+                <mat-error>{{ 'val.longitud' | t }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          @if (form.hasError('coordenadas')) {
+            <p class="error-texto" role="alert">{{ 'val.coordenadas' | t }}</p>
+          }
+        </fieldset>
+
         <fieldset class="fotos">
           <legend>{{ 'publicar.fotos' | t }}</legend>
           @if (fotos().length) {

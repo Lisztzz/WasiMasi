@@ -1,0 +1,7 @@
+<section class="mapa" [attr.aria-label]="'buscar.mapa' | t">
+  <div #lienzo class="lienzo"></div>
+  <p class="sr-only">{{ 'mapa.descripcion' | t: { n: publicaciones().length } }}</p>
+  @if (!publicaciones().length) {
+    <p class="sin-resultados"><mat-icon aria-hidden="true">info</mat-icon>{{ 'mapa.vacio' | t }}</p>
+  }
+</section>

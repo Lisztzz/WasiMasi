@@ -33,6 +33,17 @@ public class PublicacionResponseDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String titulo;
 
+    /** US09 - Condiciones negociables/no negociables. */
+    private Boolean mascotasPermitidas;
+
+    private String generoPreferido; // 'M', 'F', 'Any'
+
+    private String servicios; // Coma-separado: "agua,electricidad,wifi"
+
+    private BigDecimal latitud;
+
+    private BigDecimal longitud;
+
     /**
      * Mensaje informativo opcional, por ejemplo cuando la publicacion se
      * guarda como BORRADOR porque el anfitrion todavia no esta verificado

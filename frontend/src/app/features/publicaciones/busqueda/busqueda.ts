@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { finalize, map, startWith } from 'rxjs';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
@@ -18,6 +19,7 @@ import { FiltrosBusqueda, Publicacion } from '../../../core/models/publicacion.m
 import { PublicacionService } from '../../../core/services/publicacion.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
 import { ZONAS_POPULARES, filtrarDistritos } from '../../../core/utils/distritos';
+import { MapaResultados } from '../../../shared/components/mapa-resultados/mapa-resultados';
 import { PublicacionCard } from '../../../shared/components/publicacion-card/publicacion-card';
 
 const PRECIO_MIN = 0;
@@ -30,12 +32,13 @@ function rangoValido(grupo: AbstractControl): ValidationErrors | null {
   return min !== null && max !== null && Number(min) > Number(max) ? { rango: true } : null;
 }
 
-/** US08 - Buscar habitaciones por zona y presupuesto (mock-up 03). */
+/** US08 + US09 + US10 - Buscar habitaciones y verlas en lista o en el mapa. */
 @Component({
   selector: 'app-busqueda',
   imports: [
     ReactiveFormsModule, MatAutocompleteModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatProgressSpinnerModule, TranslatePipe, PublicacionCard,
+    MatIconModule, MatInputModule, MatProgressSpinnerModule, MatSelectModule, TranslatePipe,
+    MapaResultados, PublicacionCard,
   ],
   templateUrl: './busqueda.html',
   styleUrl: './busqueda.scss',
@@ -52,12 +55,17 @@ export class Busqueda {
   protected readonly buscada = signal<FiltrosBusqueda | null>(null);
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly vista = signal<'lista' | 'mapa'>('lista');
 
   protected readonly form = this.fb.group(
     {
       zona: ['', Validators.required],
       precioMin: [PRECIO_MIN, [Validators.required, Validators.min(0)]],
       precioMax: [PRECIO_MAX, [Validators.required, Validators.min(1)]],
+      // '' = sin filtrar; '1' = solo con mascotas; '0' = sin mascotas
+      mascotas: [''],
+      genero: [''],
+      servicios: [''],
     },
     { validators: rangoValido },
   );
@@ -73,7 +81,7 @@ export class Busqueda {
   });
 
   constructor() {
-    // Los filtros viven en la URL (?zona=...&precioMin=...&precioMax=...):
+    // Los filtros viven en la URL (?zona=...&precioMin=...&mascotas=1...):
     // así el botón "atrás" del navegador y "Volver a resultados" conservan la búsqueda.
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const zona = params.get('zona');
@@ -84,12 +92,25 @@ export class Busqueda {
         }
         return;
       }
+
+      const mascotasParam = params.get('mascotas');
+      const generoParam = params.get('genero');
       const filtros: FiltrosBusqueda = {
         zona,
         precioMin: numero(params.get('precioMin'), PRECIO_MIN),
         precioMax: numero(params.get('precioMax'), PRECIO_MAX),
+        mascotas: mascotasParam === '1' ? true : mascotasParam === '0' ? false : undefined,
+        genero: generoParam === 'M' || generoParam === 'F' ? generoParam : undefined,
+        servicios: params.get('servicios') || undefined,
       };
-      this.form.setValue(filtros, { emitEvent: false });
+      this.form.setValue({
+        zona,
+        precioMin: filtros.precioMin,
+        precioMax: filtros.precioMax,
+        mascotas: mascotasParam === '1' ? '1' : mascotasParam === '0' ? '0' : '',
+        genero: generoParam ?? '',
+        servicios: filtros.servicios ?? '',
+      }, { emitEvent: false });
       this.ejecutar(filtros);
     });
   }
@@ -100,7 +121,14 @@ export class Busqueda {
       return;
     }
     const v = this.form.getRawValue();
-    this.irA({ zona: v.zona.trim(), precioMin: Number(v.precioMin), precioMax: Number(v.precioMax) });
+    this.irA({
+      zona: v.zona.trim(),
+      precioMin: Number(v.precioMin),
+      precioMax: Number(v.precioMax),
+      mascotas: v.mascotas === '' ? undefined : v.mascotas === '1',
+      genero: v.genero === '' ? undefined : (v.genero as 'M' | 'F' | 'Any'),
+      servicios: v.servicios.trim() || undefined,
+    });
   }
 
   buscarZona(zona: string): void {

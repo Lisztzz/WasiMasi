@@ -5,6 +5,9 @@
 .zona { flex: 1; }
 .precios { display: flex; gap: 16px; }
 .precios mat-form-field { width: 170px; }
+.ayuda-condiciones { margin: 0 0 12px; font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
+.condiciones { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.condiciones mat-form-field { width: 170px; }
 .boton { height: 56px; }
 .error-rango { margin: -8px 0 8px; color: var(--wm-error); font: var(--mat-sys-body-small); }
 .populares { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -12,6 +15,8 @@
 mat-chip { cursor: pointer; }
 
 .resultados { margin-top: 24px; }
+.vistas { display: flex; gap: 8px; margin-bottom: 16px; }
+.vistas button.activa { background: var(--wm-container); color: var(--wm-primary); border-color: var(--wm-primary); }
 .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .meta h2 { font: var(--mat-sys-title-medium); margin: 0; }
 .meta span { font: var(--mat-sys-body-small); color: var(--mat-sys-on-surface-variant); }
