@@ -1,0 +1,181 @@
+<div class="wm-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">{{ 'visitas.anfitrionEyebrow' | t }}</p>
+      <h1>{{ 'visitas.inboxTitulo' | t }}</h1>
+      <p class="subtitulo">{{ 'visitas.inboxAyuda' | t }}</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="cargar()" [disabled]="cargando()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>{{ 'visitas.actualizar' | t }}
+    </button>
+  </header>
+
+  <section class="resumen" [attr.aria-label]="'visitas.resumen' | t">
+    <article class="wm-card metrica pendiente">
+      <span class="metrica-icono"><mat-icon aria-hidden="true">schedule</mat-icon></span>
+      <div><span>{{ 'visitas.estado.PENDIENTE' | t }}</span><strong>{{ pendientes() }}</strong></div>
+    </article>
+    <article class="wm-card metrica confirmada">
+      <span class="metrica-icono"><mat-icon aria-hidden="true">event_available</mat-icon></span>
+      <div><span>{{ 'visitas.estado.CONFIRMADA' | t }}</span><strong>{{ confirmadas() }}</strong></div>
+    </article>
+    <article class="wm-card metrica rechazada">
+      <span class="metrica-icono"><mat-icon aria-hidden="true">event_busy</mat-icon></span>
+      <div><span>{{ 'visitas.estado.RECHAZADA' | t }}</span><strong>{{ rechazadas() }}</strong></div>
+    </article>
+  </section>
+
+  @if (filtroPublicacionId(); as publicacionId) {
+    <aside class="filtro-publicacion" role="status">
+      <div><mat-icon aria-hidden="true">filter_alt</mat-icon>
+        <span>{{ 'visitas.filtroPublicacion' | t: { id: publicacionId } }}</span>
+      </div>
+      <button mat-button type="button" (click)="mostrarTodas()">{{ 'visitas.verTodas' | t }}</button>
+    </aside>
+  }
+
+  <section class="wm-card bandeja" [attr.aria-label]="'visitas.bandeja' | t">
+    <div class="bandeja-heading">
+      <div>
+        <h2>{{ 'visitas.solicitudesTitulo' | t }}</h2>
+        <p>{{ 'visitas.solicitudesTotal' | t: { n: visitasPublicacion().length } }}</p>
+      </div>
+      <label class="filtro">
+        <span>{{ 'visitas.filtrar' | t }}</span>
+        <select [value]="filtro()" (change)="filtro.set($any($event.target).value)">
+          <option value="TODAS">{{ 'visitas.filtroTodas' | t }}</option>
+          <option value="PENDIENTE">{{ 'visitas.estado.PENDIENTE' | t }}</option>
+          <option value="CONFIRMADA">{{ 'visitas.estado.CONFIRMADA' | t }}</option>
+          <option value="RECHAZADA">{{ 'visitas.estado.RECHAZADA' | t }}</option>
+          <option value="CANCELADA">{{ 'visitas.estado.CANCELADA' | t }}</option>
+        </select>
+      </label>
+    </div>
+
+    @if (cargando()) {
+      <p class="estado-carga" role="status"><mat-spinner diameter="26" aria-hidden="true" />{{ 'visitas.cargando' | t }}</p>
+    } @else if (error(); as mensaje) {
+      <div class="estado-vacio error" role="alert"><mat-icon aria-hidden="true">error</mat-icon><p>{{ mensaje }}</p></div>
+    } @else if (!visitas().length) {
+      <div class="estado-vacio">
+        <span class="vacio-icono"><mat-icon aria-hidden="true">event_note</mat-icon></span>
+        <h3>{{ 'visitas.sinSolicitudesTitulo' | t }}</h3>
+        <p>{{ 'visitas.sinSolicitudes' | t }}</p>
+      </div>
+    } @else if (!filtradas().length) {
+      <p class="sin-filtro">{{ 'visitas.sinResultadosFiltro' | t }}</p>
+    } @else {
+      <div class="lista-visitas">
+        @for (visita of filtradas(); track visita.id) {
+          <article class="solicitud">
+            <div class="solicitud-cabecera">
+              <div class="ubicacion"><mat-icon aria-hidden="true">location_on</mat-icon><div>
+                <h3>{{ visita.zona }}</h3><span>{{ 'visitas.publicacion' | t }} #{{ visita.publicacionId }}</span>
+              </div></div>
+              <span class="estado-pill" [class.pendiente]="visita.estado === 'PENDIENTE'"
+                    [class.confirmada]="visita.estado === 'CONFIRMADA'" [class.rechazada]="visita.estado === 'RECHAZADA'">
+                {{ ('visitas.estado.' + visita.estado) | t }}
+              </span>
+            </div>
+
+            <div class="solicitud-datos">
+              <div class="persona"><span class="avatar" aria-hidden="true">{{ visita.buscadorNombre.slice(0, 1).toUpperCase() }}</span>
+                <div><strong>{{ visita.buscadorNombre }}</strong><span>{{ 'visitas.solicito' | t }} {{ formatearFecha(visita.creadaEn) }}</span></div>
+              </div>
+              <div class="fecha"><mat-icon aria-hidden="true">calendar_month</mat-icon><div>
+                <span>{{ 'visitas.fechaPropuesta' | t }}</span><strong>{{ formatearFecha(visita.fechaHora) }}</strong>
+              </div></div>
+            </div>
+
+            @if (visita.comentario) {
+              <blockquote>{{ visita.comentario }}</blockquote>
+            }
+            @if (visita.estado === 'RECHAZADA' && visita.motivoRespuesta) {
+              <p class="motivo"><strong>{{ 'visitas.motivoRechazo' | t }}:</strong> {{ visita.motivoRespuesta }}</p>
+            }
+
+            <div class="solicitud-acciones">
+              @if (visita.estado === 'PENDIENTE') {
+                <button mat-flat-button type="button" (click)="responder(visita, 'CONFIRMADA')"
+                        [disabled]="enviandoId() === visita.id">
+                  <mat-icon aria-hidden="true">check</mat-icon>{{ 'visitas.confirmar' | t }}
+                </button>
+                <button mat-stroked-button type="button" (click)="responder(visita, 'RECHAZADA')"
+                        [disabled]="enviandoId() === visita.id">
+                  <mat-icon aria-hidden="true">close</mat-icon>{{ 'visitas.rechazar' | t }}
+                </button>
+              }
+              <button mat-button type="button" class="comparar" (click)="comparar(visita.publicacionId)">
+                <mat-icon aria-hidden="true">compare_arrows</mat-icon>{{ 'visitas.comparar' | t }}
+              </button>
+            </div>
+
+            @if (rechazoAbierto() === visita.id) {
+              <form class="rechazo-form" [formGroup]="rechazoForm" (ngSubmit)="responder(visita, 'RECHAZADA')">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'visitas.motivoRechazo' | t }}</mat-label>
+                  <textarea matInput formControlName="motivo" rows="2" maxlength="500" required></textarea>
+                  @if (rechazoForm.controls.motivo.hasError('required') && rechazoForm.controls.motivo.touched) {
+                    <mat-error>{{ 'val.requerido' | t }}</mat-error>
+                  }
+                </mat-form-field>
+                <div class="rechazo-acciones">
+                  <button mat-flat-button type="submit" [disabled]="enviandoId() === visita.id">{{ 'visitas.enviarRechazo' | t }}</button>
+                  <button mat-button type="button" (click)="rechazoAbierto.set(null)">{{ 'visitas.cancelar' | t }}</button>
+                </div>
+              </form>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  @if (publicacionComparada(); as publicacionId) {
+    <section class="wm-card comparacion" aria-live="polite">
+      <div class="comparacion-heading">
+        <div><p class="eyebrow">{{ 'visitas.comparacionEyebrow' | t }}</p>
+          <h2>{{ 'visitas.comparacionTitulo' | t: { id: publicacionId } }}</h2>
+          <p>{{ 'visitas.comparacionAyuda' | t }}</p>
+        </div>
+        <button mat-icon-button type="button" (click)="publicacionComparada.set(null)" [attr.aria-label]="'visitas.cerrarComparacion' | t">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+      @if (cargandoInteresados()) {
+        <p class="estado-carga" role="status"><mat-spinner diameter="26" aria-hidden="true" />{{ 'visitas.cargandoInteresados' | t }}</p>
+      } @else if (errorInteresados(); as mensaje) {
+        <p class="mensaje-error" role="alert">{{ mensaje }}</p>
+      } @else if (!interesados().length) {
+        <p class="sin-filtro">{{ 'visitas.sinInteresados' | t }}</p>
+      } @else {
+        <div class="tabla-scroll">
+          <table>
+            <thead><tr>
+              <th scope="col">{{ 'visitas.estudiante' | t }}</th>
+              <th scope="col">{{ 'visitas.verificacion' | t }}</th>
+              <th scope="col">{{ 'visitas.fechaRegistro' | t }}</th>
+              <th scope="col">{{ 'visitas.fechaPropuesta' | t }}</th>
+              <th scope="col">{{ 'visitas.estadoSolicitud' | t }}</th>
+              <th scope="col">{{ 'visitas.comentario' | t }}</th>
+            </tr></thead>
+            <tbody>
+              @for (interesado of interesados(); track interesado.visitaId) {
+                <tr>
+                  <td><strong>{{ interesado.nombre }}</strong><span>{{ interesado.universidad || ('visitas.sinUniversidad' | t) }}</span></td>
+                  <td><span class="verificado" [class.no-verificado]="interesado.estadoVerificacion !== 'VERIFICADO'">
+                    {{ ('verif.estado.' + interesado.estadoVerificacion) | t }}
+                  </span></td>
+                  <td>{{ formatearFecha(interesado.fechaRegistro) }}</td>
+                  <td>{{ formatearFecha(interesado.fechaHoraVisita) }}</td>
+                  <td>{{ ('visitas.estado.' + interesado.estadoVisita) | t }}</td>
+                  <td>{{ interesado.comentario || ('visitas.sinComentario' | t) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

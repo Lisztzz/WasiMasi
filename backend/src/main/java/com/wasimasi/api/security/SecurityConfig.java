@@ -61,6 +61,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/publicaciones/mias").hasRole("ANFITRION")
                         .requestMatchers(HttpMethod.PUT, "/publicaciones/{id}").hasRole("ANFITRION")
                         .requestMatchers(HttpMethod.PATCH, "/publicaciones/{id}/estado").hasRole("ANFITRION")
+                        .requestMatchers(HttpMethod.POST, "/visitas").hasRole("BUSCADOR")
+                        .requestMatchers(HttpMethod.GET, "/visitas/mis-visitas").hasRole("ANFITRION")
+                        .requestMatchers(HttpMethod.PATCH, "/visitas/*/respuesta").hasRole("ANFITRION")
+                        .requestMatchers(HttpMethod.GET, "/visitas/publicacion/*/interesados").hasRole("ANFITRION")
+                        .requestMatchers(HttpMethod.GET, "/reportes/**").hasRole("ANFITRION")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .authenticationEntryPoint(authenticationEntryPoint)

@@ -5,6 +5,7 @@ import com.wasimasi.api.dto.EstadoPublicacionRequestDTO;
 import com.wasimasi.api.dto.PublicacionRequestDTO;
 import com.wasimasi.api.dto.PublicacionResponseDTO;
 import com.wasimasi.api.exception.UnauthorizedException;
+import com.wasimasi.api.dto.BusquedaRequestDTO;
 import com.wasimasi.api.service.PublicacionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * US06 - Publicar (solo rol ANFITRION), US08/US09 - Buscar y US11 - Ver detalle
+ * US06 - Publicar (solo rol ANFITRION), US07/US18 - Gestionar, US08/US09 - Buscar, US11 - Ver detalle
+ * y US20 - registrar filtros anonimos para los reportes
  * (cualquier usuario autenticado). Todas requieren "Authorization: Bearer <token>".
  */
 @RestController
@@ -78,6 +80,12 @@ public class PublicacionController {
             @RequestParam(name = "genero", required = false) String genero,
             @RequestParam(name = "servicios", required = false) String servicios) {
         return publicacionService.buscar(zona, precioMin, precioMax, mascotas, genero, servicios);
+    }
+
+    /** US08/US20 - Buscar habitaciones y registrar únicamente los filtros agregados para reportes. */
+    @PostMapping("/buscar")
+    public List<PublicacionResponseDTO> buscarYRegistrar(@Valid @RequestBody BusquedaRequestDTO request) {
+        return publicacionService.buscarYRegistrar(request);
     }
 
     @GetMapping("/{id}")

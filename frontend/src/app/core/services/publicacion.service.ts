@@ -7,7 +7,7 @@ import {
 } from '../models/publicacion.model';
 import { normalizarZona } from '../utils/distritos';
 
-/** Publicaciones de habitaciones (US06 publicar, US08 buscar, US09 condiciones, US11 detalle). */
+/** Publicaciones de habitaciones (US06, US07, US08, US09, US11, US18 y US20). */
 @Injectable({ providedIn: 'root' })
 export class PublicacionService {
   private readonly http = inject(HttpClient);
@@ -16,17 +16,30 @@ export class PublicacionService {
   /** Última búsqueda, para volver a los resultados desde el detalle. */
   readonly ultimaBusqueda = signal<FiltrosBusqueda | null>(null);
 
-  /**
-   * GET /publicaciones?zona&precioMin&precioMax [&mascotas&genero&servicios]
-   * Solo publicaciones ACTIVA. Los filtros de US09 son opcionales: no se envían
-   * cuando el usuario no los eligió, para no alterar el contrato anterior.
-   */
+  /** US08/US09/US20 - Busca habitaciones y registra los filtros anónimos para los reportes. */
   buscar(filtros: FiltrosBusqueda): Observable<Publicacion[]> {
+    this.ultimaBusqueda.set(filtros);
+    return this.http.post<Publicacion[]>(`${this.api}/buscar`, {
+      zona: normalizarZona(filtros.zona),
+      precioMin: filtros.precioMin,
+      precioMax: filtros.precioMax,
+      mascotas: filtros.mascotas,
+      genero: filtros.genero || undefined,
+      servicios: filtros.servicios || undefined,
+    });
+  }
+
+  /**
+   * US08/US09 - Recupera una búsqueda ya presente en la URL sin volver a registrarla en US20.
+   * GET /publicaciones?zona&precioMin&precioMax [&mascotas&genero&servicios]; los filtros
+   * de US09 solo se envían cuando el usuario los eligió.
+   */
+  consultar(filtros: FiltrosBusqueda): Observable<Publicacion[]> {
     this.ultimaBusqueda.set(filtros);
     let params = new HttpParams()
       .set('zona', normalizarZona(filtros.zona))
-      .set('precioMin', filtros.precioMin)
-      .set('precioMax', filtros.precioMax);
+      .set('precioMin', String(filtros.precioMin))
+      .set('precioMax', String(filtros.precioMax));
 
     if (filtros.mascotas !== undefined) {
       params = params.set('mascotas', filtros.mascotas);

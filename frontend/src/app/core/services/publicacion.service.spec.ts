@@ -22,11 +22,11 @@ describe('PublicacionService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('busca normalizando la zona y enviando sólo los parámetros obligatorios', () => {
+  it('consulta (GET) normalizando la zona y enviando sólo los parámetros obligatorios', () => {
     const filtros: FiltrosBusqueda = { zona: '  Jesús María ', precioMin: 500, precioMax: 1500 };
     let resultado: unknown;
 
-    service.buscar(filtros).subscribe((publicaciones) => (resultado = publicaciones));
+    service.consultar(filtros).subscribe((publicaciones) => (resultado = publicaciones));
 
     const req = httpMock.expectOne((peticion) => peticion.url === api);
     expect(req.request.method).toBe('GET');
@@ -50,7 +50,7 @@ describe('PublicacionService', () => {
       servicios: 'agua,wifi',
     };
 
-    service.buscar(filtros).subscribe();
+    service.consultar(filtros).subscribe();
 
     const req = httpMock.expectOne((peticion) => peticion.url === api);
     expect(req.request.params.get('mascotas')).toBe('false');
@@ -63,11 +63,23 @@ describe('PublicacionService', () => {
   });
 
   it('omite filtros opcionales vacíos para no cambiar el contrato anterior', () => {
-    service.buscar({ zona: 'Miraflores', precioMin: 100, precioMax: 900, servicios: '' })
+    service.consultar({ zona: 'Miraflores', precioMin: 100, precioMax: 900, servicios: '' })
       .subscribe();
 
     const req = httpMock.expectOne((peticion) => peticion.url === api);
     expect(req.request.params.keys().sort()).toEqual(['precioMax', 'precioMin', 'zona']);
+    req.flush([]);
+  });
+
+  it('busca con POST /buscar para registrar la demanda de US20, con los filtros de US09', () => {
+    service.buscar({ zona: '  Jesús María ', precioMin: 300, precioMax: 900, mascotas: false, genero: 'F', servicios: '' })
+      .subscribe();
+
+    const req = httpMock.expectOne(`${api}/buscar`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      zona: 'Jesus Maria', precioMin: 300, precioMax: 900, mascotas: false, genero: 'F', servicios: undefined,
+    });
     req.flush([]);
   });
 
@@ -88,7 +100,6 @@ describe('PublicacionService', () => {
       mascotasPermitidas: true,
       generoPreferido: 'Any',
       servicios: 'agua,electricidad,wifi',
-      condicionesNoNegociables: ['mascotas', 'servicios'],
       latitud: -12.0971,
       longitud: -77.0353,
     };

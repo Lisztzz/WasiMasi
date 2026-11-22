@@ -111,7 +111,10 @@ export class Busqueda {
         genero: generoParam ?? '',
         servicios: filtros.servicios ?? '',
       }, { emitEvent: false });
-      this.ejecutar(filtros);
+      // Restaurar una URL o volver atrás solo recupera resultados; no cuenta como otra búsqueda.
+      if (!mismaBusqueda(filtros, this.buscada())) {
+        this.ejecutar(filtros, false);
+      }
     });
   }
 
@@ -121,14 +124,16 @@ export class Busqueda {
       return;
     }
     const v = this.form.getRawValue();
-    this.irA({
+    const filtros: FiltrosBusqueda = {
       zona: v.zona.trim(),
       precioMin: Number(v.precioMin),
       precioMax: Number(v.precioMax),
       mascotas: v.mascotas === '' ? undefined : v.mascotas === '1',
       genero: v.genero === '' ? undefined : (v.genero as 'M' | 'F' | 'Any'),
       servicios: v.servicios.trim() || undefined,
-    });
+    };
+    this.ejecutar(filtros, true);
+    this.irA(filtros);
   }
 
   buscarZona(zona: string): void {
@@ -137,15 +142,16 @@ export class Busqueda {
   }
 
   private irA(filtros: FiltrosBusqueda): void {
-    this.router.navigate([], { relativeTo: this.route, queryParams: { ...filtros } });
+    // En la URL, mascotas va como '1'/'0' (así lo lee el constructor); los filtros vacíos no se escriben.
+    const mascotas = filtros.mascotas === undefined ? undefined : filtros.mascotas ? '1' : '0';
+    this.router.navigate([], { relativeTo: this.route, queryParams: { ...filtros, mascotas } });
   }
 
-  private ejecutar(filtros: FiltrosBusqueda): void {
+  private ejecutar(filtros: FiltrosBusqueda, registrar: boolean): void {
     this.cargando.set(true);
     this.error.set(null);
     this.buscada.set(filtros);
-    this.publicaciones
-      .buscar(filtros)
+    (registrar ? this.publicaciones.buscar(filtros) : this.publicaciones.consultar(filtros))
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (lista) => this.resultados.set(lista),
@@ -160,4 +166,14 @@ export class Busqueda {
 function numero(valor: string | null, porDefecto: number): number {
   const n = Number(valor);
   return valor !== null && Number.isFinite(n) && n >= 0 ? n : porDefecto;
+}
+
+function mismaBusqueda(a: FiltrosBusqueda, b: FiltrosBusqueda | null): boolean {
+  return b !== null
+    && a.zona === b.zona
+    && a.precioMin === b.precioMin
+    && a.precioMax === b.precioMax
+    && a.mascotas === b.mascotas
+    && (a.genero ?? '') === (b.genero ?? '')
+    && (a.servicios ?? '') === (b.servicios ?? '');
 }
