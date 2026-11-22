@@ -7,10 +7,10 @@
   position: sticky; top: 0; z-index: 10;
 }
 .izquierda, .derecha { display: flex; align-items: center; }
-.izquierda { gap: 48px; }
+.izquierda { gap: clamp(16px, 4vw, 48px); }
 .derecha { gap: 12px; }
 .inicio { text-decoration: none; display: inline-flex; }
-.nav-web { display: flex; gap: 32px; }
+.nav-web { display: flex; gap: clamp(12px, 2.6vw, 32px); }
 .nav-web a { font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
 .nav-web a.activo { color: var(--wm-secondary); font-weight: 500; border-bottom-color: var(--wm-secondary); }
 .avatar {

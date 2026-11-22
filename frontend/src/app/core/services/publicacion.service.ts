@@ -2,7 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { FiltrosBusqueda, Publicacion, PublicacionRequest } from '../models/publicacion.model';
+import {
+  EditarPublicacionRequest, EstadoGestionPublicacion, FiltrosBusqueda, Publicacion, PublicacionRequest,
+} from '../models/publicacion.model';
 import { normalizarZona } from '../utils/distritos';
 
 /** Publicaciones de habitaciones (US06 publicar, US08 buscar, US11 detalle). */
@@ -32,5 +34,20 @@ export class PublicacionService {
   /** POST /publicaciones (solo ANFITRION; el anfitrión sale del JWT). */
   publicar(datos: PublicacionRequest): Observable<Publicacion> {
     return this.http.post<Publicacion>(this.api, { ...datos, zona: normalizarZona(datos.zona) });
+  }
+
+  /** US07 - Publicaciones del anfitrión autenticado. */
+  listarMias(): Observable<Publicacion[]> {
+    return this.http.get<Publicacion[]>(`${this.api}/mias`);
+  }
+
+  /** US07 - Guardar los datos de una publicación propia. */
+  editar(id: number, datos: EditarPublicacionRequest): Observable<Publicacion> {
+    return this.http.put<Publicacion>(`${this.api}/${id}`, { ...datos, zona: normalizarZona(datos.zona) });
+  }
+
+  /** US07 y US18 - Cambiar el estado de una publicación propia. */
+  cambiarEstado(id: number, estado: EstadoGestionPublicacion): Observable<Publicacion> {
+    return this.http.patch<Publicacion>(`${this.api}/${id}/estado`, { estado });
   }
 }

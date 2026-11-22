@@ -18,6 +18,7 @@ export class PublicacionCard {
   readonly publicacion = input.required<Publicacion>();
   /** En la pantalla de publicar la tarjeta es solo una vista previa: sin enlace al detalle. */
   readonly vistaPrevia = input(false);
+  readonly mostrarDetalle = input(true);
   /** URL de la portada que no cargó (se muestra el ícono en su lugar). */
   protected readonly fotoFallida = signal<string | null>(null);
 }

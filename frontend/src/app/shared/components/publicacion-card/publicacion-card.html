@@ -9,6 +9,9 @@
     }
   </div>
   <div class="contenido">
+    @if (p.titulo) {
+      <h2 class="titulo">{{ p.titulo }}</h2>
+    }
     <p class="precio" [id]="'precio-' + p.id">S/ {{ p.precio | number: '1.0-2' }} <span>{{ 'pub.mes' | t }}</span></p>
     <p class="zona"><mat-icon aria-hidden="true">location_on</mat-icon>{{ p.zona }}</p>
     <p class="descripcion">{{ p.descripcion }}</p>
@@ -16,10 +19,11 @@
       <span>{{ p.anfitrionNombre }}</span>
       <app-sello-verificacion [verificado]="p.anfitrionVerificado" />
     </div>
-    @if (!vistaPrevia()) {
+    @if (!vistaPrevia() && mostrarDetalle()) {
       <a mat-stroked-button [routerLink]="['/publicaciones', p.id]" [attr.aria-label]="'pub.verDetalleDe' | t: { zona: p.zona }">
         {{ 'pub.verDetalle' | t }}
       </a>
     }
+    <ng-content />
   </div>
 </article>
