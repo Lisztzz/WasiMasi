@@ -67,6 +67,13 @@ public class Publicacion {
     @Column(name = "servicios", length = 255, nullable = true)
     private String servicios; // Coma-separado: "agua,electricidad,wifi"
 
+    /**
+     * US09 - Claves de las condiciones que NO se pueden negociar ("mascotas,genero,servicios").
+     * Null = publicacion anterior a US09: se siguen tratando todas como rigidas.
+     */
+    @Column(name = "condiciones_no_negociables", length = 60, nullable = true)
+    private String condicionesNoNegociables;
+
     @Column(name = "latitud", precision = 10, scale = 6, nullable = true)
     private BigDecimal latitud;
 

@@ -42,6 +42,9 @@ public class PublicacionRequestDTO {
 
     private String servicios; // Coma-separado: "agua,electricidad,wifi"
 
+    /** US09 - Condiciones NO negociables: "mascotas", "genero" y/u "servicios". Opcional. */
+    private List<String> condicionesNoNegociables;
+
     /** US10 - Coordenadas de la habitación para mostrarla en el mapa. */
     @DecimalMin(value = "-90.0", message = "La latitud debe estar entre -90 y 90")
     @DecimalMax(value = "90.0", message = "La latitud debe estar entre -90 y 90")
