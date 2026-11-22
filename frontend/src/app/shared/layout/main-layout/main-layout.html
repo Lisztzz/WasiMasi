@@ -10,7 +10,8 @@
           @if (enlace.ruta === '/mensajes') {
             <ng-container [ngTemplateOutlet]="iconoMensajes" />
           }
-          {{ enlace.clave | t }}
+          <!-- Con 7 accesos (anfitrión) los nombres largos no entran en una línea: se usan los cortos -->
+          {{ (enlaces().length > 4 ? enlace.claveCorta : enlace.clave) | t }}
         </a>
       }
     </nav>
