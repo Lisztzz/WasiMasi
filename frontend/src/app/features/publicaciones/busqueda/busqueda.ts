@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { finalize, map, startWith } from 'rxjs';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
@@ -18,6 +19,7 @@ import { FiltrosBusqueda, Publicacion } from '../../../core/models/publicacion.m
 import { PublicacionService } from '../../../core/services/publicacion.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
 import { ZONAS_POPULARES, filtrarDistritos } from '../../../core/utils/distritos';
+import { MapaResultados } from '../../../shared/components/mapa-resultados/mapa-resultados';
 import { PublicacionCard } from '../../../shared/components/publicacion-card/publicacion-card';
 
 const PRECIO_MIN = 0;
@@ -30,12 +32,13 @@ function rangoValido(grupo: AbstractControl): ValidationErrors | null {
   return min !== null && max !== null && Number(min) > Number(max) ? { rango: true } : null;
 }
 
-/** US08 - Buscar habitaciones por zona y presupuesto (mock-up 03). */
+/** US08 + US09 + US10 - Buscar habitaciones y verlas en lista o en el mapa. */
 @Component({
   selector: 'app-busqueda',
   imports: [
     ReactiveFormsModule, MatAutocompleteModule, MatButtonModule, MatChipsModule, MatFormFieldModule,
-    MatIconModule, MatInputModule, MatProgressSpinnerModule, TranslatePipe, PublicacionCard,
+    MatIconModule, MatInputModule, MatProgressSpinnerModule, MatSelectModule, TranslatePipe,
+    MapaResultados, PublicacionCard,
   ],
   templateUrl: './busqueda.html',
   styleUrl: './busqueda.scss',
@@ -52,12 +55,17 @@ export class Busqueda {
   protected readonly buscada = signal<FiltrosBusqueda | null>(null);
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly vista = signal<'lista' | 'mapa'>('lista');
 
   protected readonly form = this.fb.group(
     {
       zona: ['', Validators.required],
       precioMin: [PRECIO_MIN, [Validators.required, Validators.min(0)]],
       precioMax: [PRECIO_MAX, [Validators.required, Validators.min(1)]],
+      // '' = sin filtrar; '1' = solo con mascotas; '0' = sin mascotas
+      mascotas: [''],
+      genero: [''],
+      servicios: [''],
     },
     { validators: rangoValido },
   );
@@ -73,7 +81,7 @@ export class Busqueda {
   });
 
   constructor() {
-    // Los filtros viven en la URL (?zona=...&precioMin=...&precioMax=...):
+    // Los filtros viven en la URL (?zona=...&precioMin=...&mascotas=1...):
     // así el botón "atrás" del navegador y "Volver a resultados" conservan la búsqueda.
     this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const zona = params.get('zona');
@@ -84,13 +92,29 @@ export class Busqueda {
         }
         return;
       }
+
+      const mascotasParam = params.get('mascotas');
+      const generoParam = params.get('genero');
       const filtros: FiltrosBusqueda = {
         zona,
         precioMin: numero(params.get('precioMin'), PRECIO_MIN),
         precioMax: numero(params.get('precioMax'), PRECIO_MAX),
+        mascotas: mascotasParam === '1' ? true : mascotasParam === '0' ? false : undefined,
+        genero: generoParam === 'M' || generoParam === 'F' ? generoParam : undefined,
+        servicios: params.get('servicios') || undefined,
       };
-      this.form.setValue(filtros, { emitEvent: false });
-      this.ejecutar(filtros);
+      this.form.setValue({
+        zona,
+        precioMin: filtros.precioMin,
+        precioMax: filtros.precioMax,
+        mascotas: mascotasParam === '1' ? '1' : mascotasParam === '0' ? '0' : '',
+        genero: generoParam ?? '',
+        servicios: filtros.servicios ?? '',
+      }, { emitEvent: false });
+      // Restaurar una URL o volver atrás solo recupera resultados; no cuenta como otra búsqueda.
+      if (!mismaBusqueda(filtros, this.buscada())) {
+        this.ejecutar(filtros, false);
+      }
     });
   }
 
@@ -100,7 +124,16 @@ export class Busqueda {
       return;
     }
     const v = this.form.getRawValue();
-    this.irA({ zona: v.zona.trim(), precioMin: Number(v.precioMin), precioMax: Number(v.precioMax) });
+    const filtros: FiltrosBusqueda = {
+      zona: v.zona.trim(),
+      precioMin: Number(v.precioMin),
+      precioMax: Number(v.precioMax),
+      mascotas: v.mascotas === '' ? undefined : v.mascotas === '1',
+      genero: v.genero === '' ? undefined : (v.genero as 'M' | 'F' | 'Any'),
+      servicios: v.servicios.trim() || undefined,
+    };
+    this.ejecutar(filtros, true);
+    this.irA(filtros);
   }
 
   buscarZona(zona: string): void {
@@ -109,15 +142,16 @@ export class Busqueda {
   }
 
   private irA(filtros: FiltrosBusqueda): void {
-    this.router.navigate([], { relativeTo: this.route, queryParams: { ...filtros } });
+    // En la URL, mascotas va como '1'/'0' (así lo lee el constructor); los filtros vacíos no se escriben.
+    const mascotas = filtros.mascotas === undefined ? undefined : filtros.mascotas ? '1' : '0';
+    this.router.navigate([], { relativeTo: this.route, queryParams: { ...filtros, mascotas } });
   }
 
-  private ejecutar(filtros: FiltrosBusqueda): void {
+  private ejecutar(filtros: FiltrosBusqueda, registrar: boolean): void {
     this.cargando.set(true);
     this.error.set(null);
     this.buscada.set(filtros);
-    this.publicaciones
-      .buscar(filtros)
+    (registrar ? this.publicaciones.buscar(filtros) : this.publicaciones.consultar(filtros))
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (lista) => this.resultados.set(lista),
@@ -132,4 +166,14 @@ export class Busqueda {
 function numero(valor: string | null, porDefecto: number): number {
   const n = Number(valor);
   return valor !== null && Number.isFinite(n) && n >= 0 ? n : porDefecto;
+}
+
+function mismaBusqueda(a: FiltrosBusqueda, b: FiltrosBusqueda | null): boolean {
+  return b !== null
+    && a.zona === b.zona
+    && a.precioMin === b.precioMin
+    && a.precioMax === b.precioMax
+    && a.mascotas === b.mascotas
+    && (a.genero ?? '') === (b.genero ?? '')
+    && (a.servicios ?? '') === (b.servicios ?? '');
 }

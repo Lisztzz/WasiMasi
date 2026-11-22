@@ -1,0 +1,32 @@
+<h2>{{ 'vivienda.titulo' | t }}</h2>
+
+@if (error(); as mensaje) {
+  <p role="alert">{{ mensaje }}</p>
+}
+
+<form (submit)="crear($event)">
+  <mat-form-field appearance="outline">
+    <mat-label>{{ 'vivienda.nombre' | t }}</mat-label>
+    <input matInput [formControl]="nombre" maxlength="100" />
+  </mat-form-field>
+  <button mat-stroked-button type="submit" [disabled]="ocupada() || !nombre.value.trim()">
+    {{ 'vivienda.crear' | t }}
+  </button>
+</form>
+
+@if (opciones().length) {
+  <form (submit)="vincular($event)">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'vivienda.seleccionar' | t }}</mat-label>
+      <select matNativeControl [formControl]="elegida">
+        <option [ngValue]="null"></option>
+        @for (vivienda of opciones(); track vivienda.id) {
+          <option [ngValue]="vivienda.id">{{ vivienda.nombre }}</option>
+        }
+      </select>
+    </mat-form-field>
+    <button mat-stroked-button type="submit" [disabled]="ocupada() || elegida.value === null">
+      {{ 'vivienda.vincular' | t }}
+    </button>
+  </form>
+}

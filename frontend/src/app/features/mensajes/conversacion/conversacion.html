@@ -1,0 +1,64 @@
+<section class="wm-page mensajes">
+  <a mat-button routerLink="/mensajes">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ 'mensajes.volver' | t }}
+  </a>
+
+  @if (sinConexion()) {
+    <p role="status">{{ 'mensajes.conexion' | t }}</p>
+  }
+
+  @if (cargando()) {
+    <p role="status">{{ 'mensajes.cargando' | t }}</p>
+  } @else if (error(); as aviso) {
+    <p class="error" role="alert">{{ aviso }}</p>
+  } @else if (chat(); as conversacion) {
+    <h1>{{ conversacion.interlocutorNombre }}</h1>
+    <ol #historial class="wm-card historial historial-chat" (scroll)="actualizarScroll($event)">
+      @for (mensaje of mensajes(); track mensaje.id) {
+        @let propio = mensaje.emisorId === usuarioId();
+        <li class="mensaje" [class.propio]="propio">
+          <strong>{{ propio ? ('mensajes.tu' | t) : (mensaje.emisorNombre ?? conversacion.interlocutorNombre) }}</strong>
+          <p>{{ mensaje.contenido }}</p>
+          <time [attr.datetime]="mensaje.fechaEnvio">{{ mensaje.fechaEnvio | date: 'dd/MM/yyyy HH:mm' }}</time>
+          @if (propio) {
+            <span class="estado-mensaje">
+              <mat-icon aria-hidden="true">check</mat-icon>{{ 'mensajes.estadoEnviado' | t }}
+            </span>
+          }
+        </li>
+      }
+      @for (envio of pendientes(); track envio.clienteId) {
+        <li class="mensaje propio">
+          <strong>{{ 'mensajes.tu' | t }}</strong>
+          <p>{{ envio.contenido }}</p>
+          @if (envio.estado === 'no-enviado') {
+            <span class="estado-mensaje error" role="status">
+              <mat-icon aria-hidden="true">error_outline</mat-icon>{{ 'mensajes.estadoNoEnviado' | t }}
+            </span>
+            @if (envio.reintentar) {
+              <small>{{ 'mensajes.reintentando' | t }}</small>
+            } @else if (envio.error) {
+              <small>{{ envio.error }}</small>
+            }
+          } @else {
+            <span class="estado-mensaje">{{ 'mensajes.enviando' | t }}</span>
+          }
+        </li>
+      }
+    </ol>
+
+    @if (conversacion.cerrada) {
+      <p role="status">{{ 'mensajes.grupoCerrado' | t }}</p>
+    } @else {
+      <form class="composer" (submit)="enviar($event)">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'mensajes.texto' | t }}</mat-label>
+          <textarea matInput rows="2" [formControl]="entrada" [maxlength]="maximo"></textarea>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="!puedeEnviar()">
+          <mat-icon aria-hidden="true">send</mat-icon>{{ 'mensajes.enviar' | t }}
+        </button>
+      </form>
+    }
+  }
+</section>

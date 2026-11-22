@@ -14,7 +14,8 @@ import java.util.List;
 
 /**
  * Publicacion de una habitacion disponible, hecha por un anfitrion.
- * Cubre US06 (publicar), US08 (buscar) y US11 (ver detalle).
+ * Cubre US06 (publicar), US08 (buscar), US09 (condiciones negociables/no negociables)
+ * y US11 (ver detalle).
  */
 @Entity
 @Table(name = "publicaciones")
@@ -55,6 +56,37 @@ public class Publicacion {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaPublicacion;
+
+    /** US15 - Habitación vinculada a una vivienda por su anfitrión. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vivienda_id")
+    private Vivienda vivienda;
+
+    /** US07 - Título opcional para conservar las publicaciones existentes. */
+    private String titulo;
+
+    /** US09 - Condiciones negociables/no negociables. */
+    @Column(name = "mascotas_permitidas", nullable = true)
+    private Boolean mascotasPermitidas;
+
+    @Column(name = "genero_preferido", length = 10, nullable = true)
+    private String generoPreferido; // 'M', 'F', 'Any'
+
+    @Column(name = "servicios", length = 255, nullable = true)
+    private String servicios; // Coma-separado: "agua,electricidad,wifi"
+
+    /**
+     * US09 - Claves de las condiciones que NO se pueden negociar ("mascotas,genero,servicios").
+     * Null = publicacion anterior a US09: se siguen tratando todas como rigidas.
+     */
+    @Column(name = "condiciones_no_negociables", length = 60, nullable = true)
+    private String condicionesNoNegociables;
+
+    @Column(name = "latitud", precision = 10, scale = 6, nullable = true)
+    private BigDecimal latitud;
+
+    @Column(name = "longitud", precision = 10, scale = 6, nullable = true)
+    private BigDecimal longitud;
 
     @PrePersist
     void alCrear() {

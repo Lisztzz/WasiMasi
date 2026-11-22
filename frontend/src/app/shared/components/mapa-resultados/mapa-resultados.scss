@@ -1,0 +1,35 @@
+.mapa {
+  position: relative;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--mat-sys-surface);
+}
+
+.lienzo {
+  height: 440px;
+  width: 100%;
+}
+
+.sin-resultados {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-small);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .lienzo { height: 320px; }
+  .sin-resultados { font-size: 12px; }
+}
