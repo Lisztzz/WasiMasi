@@ -45,7 +45,7 @@ export class MainLayout {
           { ruta: '/visitas', icono: 'event_available', clave: 'nav.visitas', claveCorta: 'nav.visitasCorto' },
           { ruta: '/reportes', icono: 'analytics', clave: 'nav.reportes', claveCorta: 'nav.reportesCorto' },
         ]
-      : []),
+      : [{ ruta: '/asistente', icono: 'smart_toy', clave: 'nav.asistente', claveCorta: 'nav.asistenteCorto' }]),
     { ruta: '/mensajes', icono: 'chat', clave: 'mensajes.titulo', claveCorta: 'mensajes.titulo' },
     { ruta: '/perfil', icono: 'person', clave: 'nav.perfil', claveCorta: 'nav.perfilCorto' },
   ]);

@@ -1,0 +1,97 @@
+<section class="wm-page asistente">
+  <header class="cabecera">
+    <div>
+      <h1>{{ 'asistente.titulo' | t }}</h1>
+      <p>{{ 'asistente.subtitulo' | t }}</p>
+    </div>
+    @if (turnos().length) {
+      <button mat-stroked-button type="button" (click)="limpiar()">
+        <mat-icon aria-hidden="true">restart_alt</mat-icon>{{ 'asistente.nueva' | t }}
+      </button>
+    }
+  </header>
+
+  <div #lista class="wm-card conversacion" role="log" aria-live="polite" [attr.aria-busy]="pensando()"
+       [attr.aria-label]="'asistente.titulo' | t">
+    @if (!turnos().length) {
+      <div class="bienvenida">
+        <span class="avatar-ia" aria-hidden="true"><mat-icon>smart_toy</mat-icon></span>
+        <p>{{ 'asistente.bienvenida' | t }}</p>
+        <div class="sugerencias">
+          @for (clave of sugerencias; track clave) {
+            <button mat-stroked-button type="button" (click)="usarSugerencia(clave)">{{ clave | t }}</button>
+          }
+        </div>
+        <p class="nota"><mat-icon aria-hidden="true">info</mat-icon>{{ 'asistente.aviso' | t }}</p>
+      </div>
+    }
+
+    @for (turno of turnos(); track turno.id) {
+      <article class="turno" [class.usuario]="turno.rol === 'USUARIO'" [class.error]="turno.error">
+        <span class="sr-only">{{ (turno.rol === 'USUARIO' ? 'asistente.tu' : 'asistente.wasi') | t }}:</span>
+        <p class="burbuja">{{ turno.texto }}</p>
+
+        @if (turno.publicaciones?.length) {
+          <div class="resultados">
+            @for (p of turno.publicaciones; track p.id) {
+              <app-publicacion-card [publicacion]="p" />
+            }
+          </div>
+        }
+
+        @if (turno.accion; as accion) {
+          <div class="accion" [class.resuelta]="accion.estado !== 'PENDIENTE'">
+            <mat-icon aria-hidden="true">event_available</mat-icon>
+            <div class="accion-texto">
+              <strong>{{ 'asistente.propuestaTitulo' | t }}</strong>
+              <span>
+                {{ 'asistente.propuestaDetalle' | t: { zona: accion.zona ?? ('#' + accion.publicacionId) } }}
+                {{ accion.fechaHora | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+              @if (accion.comentario) {
+                <small>"{{ accion.comentario }}"</small>
+              }
+              @if (accion.estado !== 'PENDIENTE') {
+                <span class="estado">{{ 'asistente.estado.' + accion.estado | t }}</span>
+              }
+            </div>
+            @if (accion.estado === 'PENDIENTE') {
+              <div class="acciones">
+                <button mat-button type="button" [disabled]="resolviendo() !== null" (click)="cancelar(turno, accion)">
+                  {{ 'asistente.cancelar' | t }}
+                </button>
+                <button mat-flat-button type="button" class="wm-btn-secondary" [disabled]="resolviendo() !== null"
+                        (click)="confirmar(turno, accion)">
+                  {{ 'asistente.confirmar' | t }}
+                </button>
+              </div>
+            } @else if (accion.estado === 'CONFIRMADA') {
+              <a mat-button [routerLink]="['/publicaciones', accion.publicacionId]">{{ 'asistente.verHabitacion' | t }}</a>
+            }
+          </div>
+        }
+      </article>
+    }
+
+    @if (pensando()) {
+      <p class="turno pensando" role="status">
+        <mat-spinner diameter="18" aria-hidden="true" />{{ 'asistente.pensando' | t }}
+      </p>
+    }
+  </div>
+
+  <form class="composer" (submit)="enviar($event)">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ 'asistente.campo' | t }}</mat-label>
+      <textarea matInput rows="2" [formControl]="entrada" [maxlength]="maximo"
+                (keydown.enter)="!$any($event).shiftKey && enviar($event)"></textarea>
+      <mat-hint align="end">{{ entrada.value.length }}/{{ maximo }}</mat-hint>
+    </mat-form-field>
+    <button mat-flat-button type="submit" [disabled]="pensando() || !entrada.value.trim()">
+      <mat-icon aria-hidden="true">send</mat-icon>{{ 'asistente.enviar' | t }}
+    </button>
+  </form>
+  @if (!esBuscador()) {
+    <p class="nota">{{ 'asistente.soloBuscadores' | t }}</p>
+  }
+</section>
