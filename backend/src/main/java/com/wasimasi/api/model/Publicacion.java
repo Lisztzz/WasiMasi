@@ -56,6 +56,14 @@ public class Publicacion {
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaPublicacion;
 
+    /** US15 - Habitación vinculada a una vivienda por su anfitrión. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vivienda_id")
+    private Vivienda vivienda;
+
+    /** US07 - Título opcional para conservar las publicaciones existentes. */
+    private String titulo;
+
     @PrePersist
     void alCrear() {
         this.fechaPublicacion = LocalDateTime.now();
