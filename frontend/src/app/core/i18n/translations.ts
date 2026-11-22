@@ -154,7 +154,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'buscar.si': 'Sí',
     'buscar.no': 'No',
     'buscar.genero': 'Género preferido',
-    'buscar.cualquier': 'Cualquier',
+    'buscar.cualquier': 'Cualquiera',
     'buscar.masculino': 'Masculino',
     'buscar.femenino': 'Femenino',
     'buscar.servicios': 'Servicios incluidos',
