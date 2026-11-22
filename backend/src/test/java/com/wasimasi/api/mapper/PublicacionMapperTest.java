@@ -49,6 +49,7 @@ class PublicacionMapperTest {
                 .mascotasPermitidas(false)
                 .generoPreferido("F")
                 .servicios("agua,wifi")
+                .condicionesNoNegociables("genero,servicios")
                 .latitud(new BigDecimal("-12.100000"))
                 .longitud(new BigDecimal("-77.050000"))
                 .build();
@@ -74,6 +75,7 @@ class PublicacionMapperTest {
         assertThat(dto.getMascotasPermitidas()).isFalse();
         assertThat(dto.getGeneroPreferido()).isEqualTo("F");
         assertThat(dto.getServicios()).isEqualTo("agua,wifi");
+        assertThat(dto.getCondicionesNoNegociables()).containsExactly("genero", "servicios");
         assertThat(dto.getLatitud()).isEqualByComparingTo("-12.100000");
         assertThat(dto.getLongitud()).isEqualByComparingTo("-77.050000");
     }
@@ -86,6 +88,17 @@ class PublicacionMapperTest {
 
         assertThat(dto.isAnfitrionVerificado()).isFalse();
         assertThat(dto.getAnfitrionId()).isEqualTo(10L);
+    }
+
+    @Test
+    @DisplayName("US09 - publicacion sin campo de condiciones (anterior a US09) mantiene null")
+    void condicionesNoNegociablesAusentesSeMapeanComoNull() {
+        Publicacion publicacion = publicacion(EstadoVerificacion.VERIFICADO);
+        publicacion.setCondicionesNoNegociables(null);
+
+        PublicacionResponseDTO dto = mapper.toResponseDTO(publicacion);
+
+        assertThat(dto.getCondicionesNoNegociables()).isNull();
     }
 
     @Test

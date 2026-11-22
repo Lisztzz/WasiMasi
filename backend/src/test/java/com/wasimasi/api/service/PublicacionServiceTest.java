@@ -89,6 +89,12 @@ class PublicacionServiceTest {
 
     /** Publicacion de prueba con el estado que exige US08 (solo ACTIVA). */
     private static Publicacion publicacion(Long id, Boolean mascotas, String genero, String servicios) {
+        return publicacion(id, mascotas, genero, servicios, null);
+    }
+
+    /** US09 - Ultimo parámetro: CSV de condiciones rígidas; null = publicacion anterior a US09. */
+    private static Publicacion publicacion(Long id, Boolean mascotas, String genero, String servicios,
+                                           String condicionesNoNegociables) {
         return Publicacion.builder()
                 .id(id)
                 .anfitrion(anfitrion(EstadoVerificacion.VERIFICADO))
@@ -99,6 +105,7 @@ class PublicacionServiceTest {
                 .mascotasPermitidas(mascotas)
                 .generoPreferido(genero)
                 .servicios(servicios)
+                .condicionesNoNegociables(condicionesNoNegociables)
                 .build();
     }
 
@@ -223,6 +230,38 @@ class PublicacionServiceTest {
         verify(publicacionRepository, never()).save(any());
     }
 
+    @Test
+    @DisplayName("US09 - publicar guarda una sola lista de condiciones no negociables")
+    void publicarGuardaCondicionesNoNegociables() {
+        when(usuarioRepository.findById(ANFITRION_ID)).thenReturn(Optional.of(anfitrion(EstadoVerificacion.VERIFICADO)));
+        simularGuardado();
+        PublicacionRequestDTO request = request();
+        request.setCondicionesNoNegociables(List.of("genero", "mascotas", "genero", "  SERVICIOS "));
+
+        PublicacionResponseDTO respuesta = publicacionService.publicar(ANFITRION_ID, request);
+
+        assertThat(respuesta.getCondicionesNoNegociables()).containsExactly("mascotas", "genero", "servicios");
+        assertThat(respuesta.getCondicionesNegociablesIncumplidas()).isEmpty();
+
+        ArgumentCaptor<Publicacion> captor = ArgumentCaptor.forClass(Publicacion.class);
+        verify(publicacionRepository).save(captor.capture());
+        assertThat(captor.getValue().getCondicionesNoNegociables()).isEqualTo("mascotas,genero,servicios");
+    }
+
+    @Test
+    @DisplayName("US09 - una condición desconocida al publicar es error")
+    void publicarConCondicionInvalidaLanzaBadRequest() {
+        when(usuarioRepository.findById(ANFITRION_ID)).thenReturn(Optional.of(anfitrion(EstadoVerificacion.VERIFICADO)));
+        PublicacionRequestDTO request = request();
+        request.setCondicionesNoNegociables(List.of("mascotas", "mascota"));
+
+        assertThatThrownBy(() -> publicacionService.publicar(ANFITRION_ID, request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("no es valida");
+
+        verify(publicacionRepository, never()).save(any());
+    }
+
     // --------------------------------------------------------------- US08/09
 
     @Test
@@ -323,6 +362,42 @@ class PublicacionServiceTest {
                 .extracting(PublicacionResponseDTO::getId).containsExactly(1L, 3L);
         assertThat(buscarCon(true, "m", "electricidad"))
                 .extracting(PublicacionResponseDTO::getId).containsExactly(3L);
+    }
+
+    @Test
+    @DisplayName("US09 - solo excluye condiciones rígidas; las negociables se devuelven con aviso")
+    void buscarSoloExcluyeCondicionesNoNegociables() {
+        when(publicacionRepository.findByEstadoAndZonaIgnoreCaseAndPrecioBetween(
+                eq(EstadoPublicacion.ACTIVA), eq("Miraflores"), eq(PRECIO_MIN), eq(PRECIO_MAX)))
+                .thenReturn(List.of(
+                        publicacion(1L, true, "Any", "wifi", "mascotas"),
+                        publicacion(2L, false, "Any", "wifi", "mascotas,genero,servicios"),
+                        publicacion(3L, true, "F", "electricidad", "")));
+
+        List<PublicacionResponseDTO> resultado = publicacionService.buscar(
+                "Miraflores", PRECIO_MIN, PRECIO_MAX, false, "F", "wifi");
+
+        assertThat(resultado).extracting(PublicacionResponseDTO::getId).containsExactly(2L, 3L);
+        PublicacionResponseDTO negociable = resultado.get(1);
+        assertThat(negociable.getCondicionesNoNegociables()).isEmpty();
+        assertThat(negociable.getCondicionesNegociablesIncumplidas())
+                .containsExactly("mascotas", "servicios");
+        assertThat(resultado.get(0).getCondicionesNegociablesIncumplidas()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("US09 - sin condiciones rígidas ningún filtro excluye y todo se avisa")
+    void buscarTodoNegociableNoExcluyeNada() {
+        when(publicacionRepository.findByEstadoAndZonaIgnoreCaseAndPrecioBetween(
+                eq(EstadoPublicacion.ACTIVA), eq("Miraflores"), eq(PRECIO_MIN), eq(PRECIO_MAX)))
+                .thenReturn(List.of(publicacion(5L, false, "M", "agua", "")));
+
+        List<PublicacionResponseDTO> resultado = publicacionService.buscar(
+                "Miraflores", PRECIO_MIN, PRECIO_MAX, true, "F", "wifi");
+
+        assertThat(resultado).extracting(PublicacionResponseDTO::getId).containsExactly(5L);
+        assertThat(resultado.get(0).getCondicionesNegociablesIncumplidas())
+                .containsExactly("mascotas", "genero", "servicios");
     }
 
     // ------------------------------------------------------------------ US11
