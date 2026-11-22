@@ -44,6 +44,12 @@ public class PublicacionResponseDTO {
 
     private String servicios; // Coma-separado: "agua,electricidad,wifi"
 
+    /** US09 - Condiciones rigidas elegidas por el anfitrion. Null = publicacion anterior a US09. */
+    private List<String> condicionesNoNegociables;
+
+    /** US09 - Condiciones negociables que no coinciden con la busqueda actual (solo en resultados). */
+    private List<String> condicionesNegociablesIncumplidas;
+
     private BigDecimal latitud;
 
     private BigDecimal longitud;

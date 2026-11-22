@@ -45,6 +45,9 @@ public record EditarPublicacionRequestDTO(
 
         @DecimalMin(value = "-180.0", message = "La longitud debe estar entre -180 y 180")
         @DecimalMax(value = "180.0", message = "La longitud debe estar entre -180 y 180")
-        BigDecimal longitud
+        BigDecimal longitud,
+
+        /** US09 - Condiciones que el anfitrión declara no negociables (mascotas, genero, servicios). */
+        List<String> condicionesNoNegociables
 ) {
 }

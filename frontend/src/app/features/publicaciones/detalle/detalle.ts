@@ -22,7 +22,7 @@ import { PublicacionService } from '../../../core/services/publicacion.service';
 import { VisitaService } from '../../../core/services/visita.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
 import {
-  textoCoordenadas, textoGenero, textoMascotas, textoServicios,
+  esCondicionNegociable, textoCoordenadas, textoGenero, textoMascotas, textoServicios,
 } from '../../../core/utils/condiciones-publicacion';
 import { MapaResultados } from '../../../shared/components/mapa-resultados/mapa-resultados';
 import { SelloVerificacion } from '../../../shared/components/sello-verificacion/sello-verificacion';
@@ -121,6 +121,19 @@ export class Detalle {
   protected readonly serviciosTexto = computed(() => {
     const p = this.publicacion();
     return p ? textoServicios(p) : null;
+  });
+  /** US09 - Etiqueta "Negociable" en las condiciones que el anfitrión acepta cambiar. */
+  protected readonly mascotasNegociable = computed(() => {
+    const p = this.publicacion();
+    return p ? esCondicionNegociable(p, 'mascotas') : false;
+  });
+  protected readonly generoNegociable = computed(() => {
+    const p = this.publicacion();
+    return p ? esCondicionNegociable(p, 'genero') : false;
+  });
+  protected readonly serviciosNegociable = computed(() => {
+    const p = this.publicacion();
+    return p ? esCondicionNegociable(p, 'servicios') : false;
   });
   protected readonly coordenadasTexto = computed(() => {
     const p = this.publicacion();

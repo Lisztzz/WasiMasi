@@ -15,7 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY, catchError, finalize, map, startWith, switchMap } from 'rxjs';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
-import { Publicacion } from '../../../core/models/publicacion.model';
+import { ClaveCondicion, Publicacion } from '../../../core/models/publicacion.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { PublicacionService } from '../../../core/services/publicacion.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
@@ -73,6 +73,8 @@ export class Publicar {
     mascotas: [''],
     genero: [''],
     servicios: [''],
+    // US09 - por defecto todas son rígidas; el anfitrión quita las que acepta negociar
+    condicionesNoNegociables: this.fb.control<ClaveCondicion[]>(['mascotas', 'genero', 'servicios']),
     // US10 - opcionales, pero van juntas
     latitud: this.fb.control<number | null>(null, [Validators.min(-90), Validators.max(90)]),
     longitud: this.fb.control<number | null>(null, [Validators.min(-180), Validators.max(180)]),
@@ -129,6 +131,8 @@ export class Publicar {
         servicios: publicacion.servicios ?? '',
         latitud: publicacion.latitud ?? null,
         longitud: publicacion.longitud ?? null,
+        // null = publicación anterior a US09: todas sus condiciones se tratan como rígidas
+        condicionesNoNegociables: publicacion.condicionesNoNegociables ?? ['mascotas', 'genero', 'servicios'],
       });
       this.fotos.set(publicacion.fotos);
       this.publicacionCargada.set(publicacion);
@@ -155,6 +159,7 @@ export class Publicar {
       mascotasPermitidas: v.mascotas === '' ? undefined : v.mascotas === '1',
       generoPreferido: v.genero ? (v.genero as 'M' | 'F' | 'Any') : undefined,
       servicios: v.servicios?.trim() || undefined,
+      condicionesNoNegociables: v.condicionesNoNegociables,
       latitud: v.latitud ?? undefined,
       longitud: v.longitud ?? undefined,
     };
@@ -201,6 +206,7 @@ export class Publicar {
       mascotasPermitidas: v.mascotas === '' ? undefined : v.mascotas === '1',
       generoPreferido: v.genero ? (v.genero as 'M' | 'F' | 'Any') : undefined,
       servicios: v.servicios.trim() || undefined,
+      condicionesNoNegociables: v.condicionesNoNegociables,
       latitud: v.latitud ?? undefined,
       longitud: v.longitud ?? undefined,
     };

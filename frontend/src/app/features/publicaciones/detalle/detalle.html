@@ -54,13 +54,13 @@
           <div><dt>{{ 'detalle.estado' | t }}</dt><dd>{{ 'estado.' + p.estado | t }}</dd></div>
           <div><dt>{{ 'detalle.publicado' | t }}</dt><dd>{{ fecha() }}</dd></div>
           @if (mascotasTexto(); as texto) {
-            <div><dt>{{ 'buscar.mascotas' | t }}</dt><dd>{{ texto }}</dd></div>
+            <div><dt>{{ 'buscar.mascotas' | t }}</dt><dd>{{ texto }} @if (mascotasNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
           }
           @if (generoTexto(); as texto) {
-            <div><dt>{{ 'buscar.genero' | t }}</dt><dd>{{ texto }}</dd></div>
+            <div><dt>{{ 'buscar.genero' | t }}</dt><dd>{{ texto }} @if (generoNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
           }
           @if (serviciosTexto(); as texto) {
-            <div><dt>{{ 'buscar.servicios' | t }}</dt><dd>{{ texto }}</dd></div>
+            <div><dt>{{ 'buscar.servicios' | t }}</dt><dd>{{ texto }} @if (serviciosNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
           }
           @if (coordenadasTexto(); as texto) {
             <div><dt>{{ 'detalle.ubicacion' | t }}</dt><dd>{{ texto }}</dd></div>
