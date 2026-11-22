@@ -9,6 +9,15 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wasimasi}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  ai:
+    openai:
+      # US21 - Agente de IA. Groq ofrece una API compatible con OpenAI (gratuita para el proyecto).
+      # La clave va SOLO en la variable de entorno GROQ_API_KEY; nunca se sube al repositorio.
+      api-key: ${GROQ_API_KEY:sin-configurar}
+      base-url: ${WASIMASI_IA_BASE_URL:https://api.groq.com/openai/v1}
+      chat:
+        model: ${WASIMASI_IA_MODELO:llama-3.3-70b-versatile}
+        temperature: 0.2
   jpa:
     hibernate:
       ddl-auto: update
