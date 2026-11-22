@@ -15,6 +15,7 @@ public interface PublicacionMapper {
     @Mapping(target = "anfitrionId", source = "anfitrion.id")
     @Mapping(target = "anfitrionNombre", source = "anfitrion.nombre")
     @Mapping(target = "anfitrionVerificado", source = "anfitrion.estadoVerificacion", qualifiedByName = "verificado")
+    @Mapping(target = "viviendaId", source = "vivienda.id")
     PublicacionResponseDTO toResponseDTO(Publicacion publicacion);
 
     /** Un anfitrión solo se considera verificado cuando su estado es VERIFICADO. */

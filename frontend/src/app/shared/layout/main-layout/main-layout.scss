@@ -2,17 +2,36 @@
 
 .barra {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 10px var(--wm-page-padding);
+  gap: 16px;
+  padding: 10px clamp(16px, calc((100% - 900px) / 2), var(--wm-page-padding));
   background: var(--wm-white); border-bottom: 1px solid var(--wm-border);
   position: sticky; top: 0; z-index: 10;
 }
 .izquierda, .derecha { display: flex; align-items: center; }
-.izquierda { gap: clamp(16px, 4vw, 48px); }
-.derecha { gap: 12px; }
+.izquierda { gap: clamp(16px, 4vw, 48px); min-width: 0; }
+.derecha { gap: 12px; flex-shrink: 0; }
 .inicio { text-decoration: none; display: inline-flex; }
-.nav-web { display: flex; gap: clamp(12px, 2.6vw, 32px); }
-.nav-web a { font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+.nav-web { display: flex; flex-wrap: wrap; gap: 4px clamp(12px, 2.5vw, 32px); }
+.nav-web a {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: var(--mat-sys-body-large); color: var(--wm-on-surface); text-decoration: none;
+  padding: 6px 0; border-bottom: 2px solid transparent;
+}
 .nav-web a.activo { color: var(--wm-secondary); font-weight: 500; border-bottom-color: var(--wm-secondary); }
+.icono-mensajes { display: inline-flex; }
+.contador {
+  align-self: start;
+  margin-block-start: -4px;
+  margin-inline-start: -4px;
+  min-width: 16px;
+  box-sizing: border-box;
+  padding-inline: 4px;
+  border-radius: 100px;
+  background: var(--wm-error);
+  color: var(--wm-white);
+  font: var(--mat-sys-label-small);
+  text-align: center;
+}
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
   background: var(--wm-primary); color: var(--wm-surface); font: var(--mat-sys-label-large);
@@ -37,7 +56,7 @@ main { flex: 1; outline: none; }
 }
 
 @media (max-width: 768px) {
-  .barra { padding: 8px 16px; }
+  .barra { gap: 0; padding: 8px 16px; }
   .nav-web { display: none; }
   .pie { padding-bottom: 88px; justify-content: center; }
   .nav-mobile {

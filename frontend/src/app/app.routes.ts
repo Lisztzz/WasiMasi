@@ -63,6 +63,22 @@ export const routes: Routes = [
         loadComponent: () => import('./features/reportes/dashboard-reportes/dashboard-reportes').then((m) => m.DashboardReportes),
       },
       {
+        path: 'mensajes',
+        title: 'Mensajes · WasiMasi',
+        loadComponent: () => import('./features/mensajes/bandeja/bandeja').then((m) => m.Bandeja),
+      },
+      {
+        path: 'mensajes/grupos/:id',
+        title: 'Grupo de vivienda · WasiMasi',
+        data: { grupal: true },
+        loadComponent: () => import('./features/mensajes/conversacion/conversacion').then((m) => m.Conversacion),
+      },
+      {
+        path: 'mensajes/:id',
+        title: 'Conversación · WasiMasi',
+        loadComponent: () => import('./features/mensajes/conversacion/conversacion').then((m) => m.Conversacion),
+      },
+      {
         path: 'perfil',
         title: 'Mi perfil · WasiMasi',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),

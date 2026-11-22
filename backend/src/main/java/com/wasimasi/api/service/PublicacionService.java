@@ -14,6 +14,7 @@ import com.wasimasi.api.model.EstadoPublicacion;
 import com.wasimasi.api.model.EstadoVerificacion;
 import com.wasimasi.api.model.Publicacion;
 import com.wasimasi.api.model.Usuario;
+import com.wasimasi.api.model.Vivienda;
 import com.wasimasi.api.repository.PublicacionRepository;
 import com.wasimasi.api.repository.BusquedaRepository;
 import com.wasimasi.api.repository.UsuarioRepository;
@@ -42,6 +43,7 @@ public class PublicacionService {
     private final BusquedaRepository busquedaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PublicacionMapper publicacionMapper;
+    private final GrupoService grupos;
 
     /**
      * @param anfitrionId id del usuario autenticado (viene del JWT, no del body).
@@ -118,7 +120,12 @@ public class PublicacionService {
                 && publicacion.getAnfitrion().getEstadoVerificacion() != EstadoVerificacion.VERIFICADO) {
             throw new ForbiddenException("Verifica tu identidad para activar la publicación");
         }
+        Vivienda vivienda = publicacion.getVivienda() == null ? null
+                : grupos.bloquear(publicacion.getVivienda().getId());
         publicacion.setEstado(estado);
+        if (vivienda != null && estado == EstadoPublicacion.OCUPADA) {
+            grupos.cerrarSiOcupada(vivienda);
+        }
         return publicacionMapper.toResponseDTO(publicacion);
     }
 

@@ -1,0 +1,31 @@
+<section class="wm-page mensajes">
+  <header class="encabezado-bandeja">
+    <h1>{{ 'mensajes.titulo' | t }}</h1>
+    <mat-slide-toggle [checked]="notificaciones.noMolestar()"
+                      (change)="notificaciones.cambiarNoMolestar($event.checked)">
+      {{ 'mensajes.noMolestar' | t }}
+    </mat-slide-toggle>
+  </header>
+  @if (cargando()) {
+    <p role="status">{{ 'mensajes.cargando' | t }}</p>
+  } @else if (error(); as aviso) {
+    <p class="error" role="alert">{{ aviso }}</p>
+  } @else {
+    <ul class="bandeja">
+      @for (fila of filas(); track (fila.grupal ? 'grupo:' : 'directa:') + fila.id) {
+        <li>
+          <a class="wm-card conversacion" [routerLink]="fila.grupal ? ['/mensajes/grupos', fila.id] : ['/mensajes', fila.id]">
+            <mat-icon aria-hidden="true">{{ fila.grupal ? 'groups' : 'chat' }}</mat-icon>
+            <span class="nombre">{{ fila.interlocutorNombre }}</span>
+            @if (fila.cerrada) {
+              <span>{{ 'mensajes.cerrado' | t }}</span>
+            }
+            <time [attr.datetime]="fila.fechaCreacion">{{ fila.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</time>
+          </a>
+        </li>
+      } @empty {
+        <li class="wm-card">{{ 'mensajes.vacio' | t }}</li>
+      }
+    </ul>
+  }
+</section>

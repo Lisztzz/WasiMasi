@@ -1,9 +1,11 @@
-import { Component, computed, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, computed, effect, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DateAdapter, MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,8 +16,9 @@ import { finalize } from 'rxjs';
 import { I18nService } from '../../../core/i18n/i18n.service';
 import { TranslatePipe } from '../../../core/i18n/translate.pipe';
 import { Publicacion } from '../../../core/models/publicacion.model';
-import { PublicacionService } from '../../../core/services/publicacion.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConversacionService } from '../../../core/services/conversacion.service';
+import { PublicacionService } from '../../../core/services/publicacion.service';
 import { VisitaService } from '../../../core/services/visita.service';
 import { mensajeDeError } from '../../../core/utils/api-error';
 import {
@@ -24,22 +27,28 @@ import {
 import { MapaResultados } from '../../../shared/components/mapa-resultados/mapa-resultados';
 import { SelloVerificacion } from '../../../shared/components/sello-verificacion/sello-verificacion';
 import { iniciales } from '../../../shared/layout/main-layout/main-layout';
+import { ContactoDialog } from '../../mensajes/contacto/contacto-dialog';
+import { VincularVivienda } from './vincular-vivienda';
 
 /** US11 - Detalle de una habitación (mock-up 04). */
 @Component({
   selector: 'app-detalle',
   imports: [
-    DecimalPipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule,
+    DecimalPipe, ReactiveFormsModule, RouterLink, MatButtonModule, MatDialogModule, MatFormFieldModule,
     MatDatepickerModule, MatNativeDateModule, MatIconModule, MatInputModule,
-    MatProgressSpinnerModule, TranslatePipe, MapaResultados, SelloVerificacion,
+    MatProgressSpinnerModule, TranslatePipe, MapaResultados, SelloVerificacion, VincularVivienda,
   ],
   templateUrl: './detalle.html',
   styleUrl: './detalle.scss',
 })
 export class Detalle {
   private readonly publicaciones = inject(PublicacionService);
-  private readonly visitas = inject(VisitaService);
+  private readonly conversaciones = inject(ConversacionService);
   private readonly auth = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly visitas = inject(VisitaService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly i18n = inject(I18nService);
   private readonly dateAdapter = inject<DateAdapter<Date>>(DateAdapter);
@@ -49,9 +58,19 @@ export class Detalle {
   readonly id = input.required<string>();
 
   protected readonly publicacion = signal<Publicacion | null>(null);
+  protected readonly esPropietario = computed(() => this.publicacion()?.anfitrionId === this.auth.usuario()?.id);
+
+  protected actualizarVivienda(viviendaId: number): void {
+    this.publicacion.update((publicacion) => publicacion && { ...publicacion, viviendaId });
+  }
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly fotoActual = signal(0);
+  protected readonly contactando = signal(false);
+  protected readonly errorContacto = signal<string | null>(null);
+  protected readonly puedeContactar = computed(() =>
+    this.auth.usuario()?.rol === 'BUSCADOR' && this.publicacion()?.estado === 'ACTIVA',
+  );
   protected readonly fotosFallidas = signal<ReadonlySet<number>>(new Set());
   protected readonly mostrarFormularioVisita = signal(false);
   protected readonly enviandoVisita = signal(false);
@@ -129,6 +148,7 @@ export class Detalle {
   private cargar(id: number): void {
     this.cargando.set(true);
     this.error.set(null);
+    this.errorContacto.set(null);
     this.errorVisita.set(null);
     this.mostrarFormularioVisita.set(false);
     this.selectorHoraAbierto.set(false);
@@ -148,9 +168,35 @@ export class Detalle {
     this.fotosFallidas.update((s) => new Set(s).add(indice));
   }
 
-  /** US12 - El contacto directo se habilitará con el módulo de comunicación. */
-  proximamente(): void {
-    this.snack.open(this.i18n.t('detalle.proximamente'), 'OK');
+  /** US12 - Reutiliza la conversación abierta o pide el primer mensaje. */
+  contactar(publicacion: Publicacion): void {
+    if (this.contactando()) return;
+    this.contactando.set(true);
+    this.errorContacto.set(null);
+    this.conversaciones.consultarContacto(publicacion.id)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.contactando.set(false)))
+      .subscribe({
+        next: ({ conversacionId }) => {
+          if (Number(this.id()) !== publicacion.id) return;
+          if (conversacionId !== null) {
+            this.router.navigate(['/mensajes', conversacionId]);
+            return;
+          }
+          this.dialog.open<ContactoDialog, Publicacion, number>(ContactoDialog, {
+            data: publicacion,
+            width: '480px',
+          }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((id) => {
+            if (id !== undefined && Number(this.id()) === publicacion.id) {
+              this.router.navigate(['/mensajes', id]);
+            }
+          });
+        },
+        error: (err) => {
+          if (Number(this.id()) === publicacion.id) {
+            this.errorContacto.set(mensajeDeError(err, this.i18n));
+          }
+        },
+      });
   }
 
   /** US16 - Abre o cierra el formulario para solicitar visita. */

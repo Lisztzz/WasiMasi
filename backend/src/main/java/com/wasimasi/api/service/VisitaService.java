@@ -33,6 +33,7 @@ public class VisitaService {
     private final PublicacionRepository publicacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final VisitaMapper visitaMapper;
+    private final GrupoService grupos;
 
     /** US16 - Registrar una solicitud de visita de un buscador. */
     @Transactional
@@ -71,9 +72,11 @@ public class VisitaService {
     /** US17 - Responder una solicitud pendiente de una publicación propia. */
     @Transactional
     public VisitaResponseDTO responder(Long anfitrionId, Long visitaId, VisitaRespuestaRequestDTO request) {
-        Visita visita = visitaRepository.findById(visitaId)
+        Visita visita = visitaRepository.findVisitaById(visitaId)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud de visita"));
-        if (!visita.getPublicacion().getAnfitrion().getId().equals(anfitrionId)) {
+        Publicacion publicacion = publicacionRepository.findPublicacionById(visita.getPublicacion().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la publicación"));
+        if (!publicacion.getAnfitrion().getId().equals(anfitrionId)) {
             throw new ForbiddenException("No puedes responder una visita de otra persona");
         }
         if (visita.getEstado() != EstadoVisita.PENDIENTE) {
@@ -90,6 +93,9 @@ public class VisitaService {
         visita.setMotivoRespuesta(request.getEstado() == EstadoVisita.RECHAZADA
                 ? limpiar(request.getMotivoRespuesta()) : null);
         visita.setActualizadaEn(LocalDateTime.now());
+        if (visita.getEstado() == EstadoVisita.CONFIRMADA && publicacion.getVivienda() != null) {
+            grupos.incorporarVisitaConfirmada(grupos.bloquear(publicacion.getVivienda().getId()), visita.getBuscador());
+        }
         return visitaMapper.toDto(visitaRepository.save(visita));
     }
 

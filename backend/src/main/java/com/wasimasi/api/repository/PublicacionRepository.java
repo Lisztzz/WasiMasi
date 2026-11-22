@@ -26,6 +26,9 @@ public interface PublicacionRepository extends JpaRepository<Publicacion, Long>,
     /** US07 y US18 - Serializar los cambios de datos y estado de una misma publicación. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Publicacion> findPublicacionById(Long id);
+
+    /** US15 - Saber si una vivienda todavia tiene habitaciones activas. */
+    boolean existsByViviendaIdAndEstado(Long viviendaId, EstadoPublicacion estado);
     /** US20 - Contar publicaciones activas por zona para los reportes de oferta. */
     @Query("""
             select new com.wasimasi.api.dto.ConteoZonaDTO(p.zona, count(p))

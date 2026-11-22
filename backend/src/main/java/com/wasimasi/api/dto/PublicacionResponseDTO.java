@@ -33,6 +33,10 @@ public class PublicacionResponseDTO {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String titulo;
 
+    /** US15 - Vivienda a la que pertenece la habitacion (para el chat grupal). */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long viviendaId;
+
     /** US09 - Condiciones negociables/no negociables. */
     private Boolean mascotasPermitidas;
 

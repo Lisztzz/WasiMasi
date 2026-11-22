@@ -16,7 +16,7 @@
   } @else {
     <div class="tarjetas">
       @for (p of publicaciones(); track p.id) {
-        <app-publicacion-card [publicacion]="p" [mostrarDetalle]="false">
+        <app-publicacion-card [publicacion]="p">
           <span class="estado" [class.ocupada]="p.estado === 'OCUPADA'" role="status">
             {{ ('gestion.estado.' + p.estado) | t }}
           </span>

@@ -54,13 +54,13 @@
           <div><dt>{{ 'detalle.estado' | t }}</dt><dd>{{ 'estado.' + p.estado | t }}</dd></div>
           <div><dt>{{ 'detalle.publicado' | t }}</dt><dd>{{ fecha() }}</dd></div>
           @if (mascotasTexto(); as texto) {
-            <div><dt>{{ 'buscar.mascotas' | t }}</dt><dd>{{ texto }} @if (mascotasNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
+            <div><dt>{{ 'buscar.mascotas' | t }}</dt><dd>{{ texto }}</dd></div>
           }
           @if (generoTexto(); as texto) {
-            <div><dt>{{ 'buscar.genero' | t }}</dt><dd>{{ texto }} @if (generoNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
+            <div><dt>{{ 'buscar.genero' | t }}</dt><dd>{{ texto }}</dd></div>
           }
           @if (serviciosTexto(); as texto) {
-            <div><dt>{{ 'buscar.servicios' | t }}</dt><dd>{{ texto }} @if (serviciosNegociable()) { <em class="negociable">{{ 'pub.negociable' | t }}</em> }</dd></div>
+            <div><dt>{{ 'buscar.servicios' | t }}</dt><dd>{{ texto }}</dd></div>
           }
           @if (coordenadasTexto(); as texto) {
             <div><dt>{{ 'detalle.ubicacion' | t }}</dt><dd>{{ texto }}</dd></div>
@@ -86,7 +86,11 @@
           </div>
         </div>
         <div class="acciones">
-          <button mat-flat-button type="button" (click)="proximamente()">{{ 'detalle.contactar' | t }}</button>
+          @if (puedeContactar()) {
+            <button mat-flat-button type="button" [disabled]="contactando()" (click)="contactar(p)">
+              {{ (contactando() ? 'mensajes.cargando' : 'detalle.contactar') | t }}
+            </button>
+          }
           @if (puedeSolicitarVisita()) {
             <button mat-stroked-button type="button" (click)="alternarFormularioVisita()"
                     [attr.aria-expanded]="mostrarFormularioVisita()">
@@ -94,6 +98,9 @@
             </button>
           }
         </div>
+        @if (errorContacto(); as mensaje) {
+          <p class="aviso error" role="alert">{{ mensaje }}</p>
+        }
         @if (mostrarFormularioVisita() && puedeSolicitarVisita()) {
           <form class="formulario-visita" [formGroup]="visitaForm" (ngSubmit)="solicitarVisita(p.id)">
             <h2>{{ 'visitas.solicitarTitulo' | t }}</h2>
@@ -197,6 +204,13 @@
               <button mat-button type="button" (click)="alternarFormularioVisita()">{{ 'visitas.cancelar' | t }}</button>
             </div>
           </form>
+        }
+        @if (p.viviendaId; as viviendaId) {
+          <a mat-stroked-button [routerLink]="['/mensajes/grupos', viviendaId]">
+            <mat-icon aria-hidden="true">groups</mat-icon>{{ 'mensajes.abrirGrupo' | t }}
+          </a>
+        } @else if (esPropietario()) {
+          <app-vincular-vivienda [publicacionId]="p.id" (vinculada)="actualizarVivienda($event)" />
         }
         <p class="consejo"><mat-icon aria-hidden="true">shield</mat-icon>{{ 'detalle.consejo' | t }}</p>
       </aside>

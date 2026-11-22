@@ -1,9 +1,6 @@
 export type EstadoPublicacion = 'BORRADOR' | 'ACTIVA' | 'PAUSADA' | 'OCUPADA';
 export type EstadoGestionPublicacion = Exclude<EstadoPublicacion, 'BORRADOR'>;
 
-/** US09 - Condiciones que se pueden marcar como no negociables al publicar. */
-export type ClaveCondicion = 'mascotas' | 'genero' | 'servicios';
-
 /** PublicacionRequestDTO (POST /publicaciones). El anfitrión sale del JWT. */
 export interface PublicacionRequest {
   zona: string;
@@ -14,8 +11,6 @@ export interface PublicacionRequest {
   mascotasPermitidas?: boolean;
   generoPreferido?: 'M' | 'F' | 'Any';
   servicios?: string; // Coma-separado: "agua,electricidad,wifi"
-  /** US09 - Condiciones que el anfitrión no acepta cambiar. */
-  condicionesNoNegociables?: ClaveCondicion[];
   /** US10 - Coordenadas para el mapa (opcionales, van juntas). */
   latitud?: number;
   longitud?: number;
@@ -30,6 +25,7 @@ export interface EditarPublicacionRequest extends PublicacionRequest {
 export interface Publicacion {
   id: number;
   anfitrionId: number;
+  viviendaId?: number;
   anfitrionNombre: string;
   anfitrionVerificado: boolean;
   titulo?: string | null;
@@ -45,13 +41,14 @@ export interface Publicacion {
   mascotasPermitidas?: boolean;
   generoPreferido?: 'M' | 'F' | 'Any';
   servicios?: string; // Coma-separado: "agua,electricidad,wifi"
-  /** US09 - Null = publicación anterior a US09 (todas las condiciones eran rígidas). */
-  condicionesNoNegociables?: ClaveCondicion[] | null;
-  /** US09 - Condiciones negociables que no coinciden con la búsqueda (solo en resultados). */
-  condicionesNegociablesIncumplidas?: ClaveCondicion[];
   /** US10 - Coordenadas del mapa. */
   latitud?: number;
   longitud?: number;
+}
+
+export interface Vivienda {
+  id: number;
+  nombre: string;
 }
 
 /** Filtros de GET /publicaciones (los tres son obligatorios, los de US09 son opcionales). */
