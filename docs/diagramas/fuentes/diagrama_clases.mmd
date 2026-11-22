@@ -44,6 +44,7 @@ class Publicacion {
   -BigDecimal precio
   -String descripcion
   -List~String~ fotos
+  -List~String~ condicionesNoNegociables
   -Double latitud
   -Double longitud
   -EstadoPublicacion estado
@@ -54,6 +55,7 @@ class Publicacion {
   +marcarOcupada() void
   +reactivar() void
   +cumpleCondiciones(condiciones) boolean
+  +esCondicionNoNegociable(clave) boolean
 }
 
 class CondicionConvivencia {

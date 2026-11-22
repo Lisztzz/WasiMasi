@@ -959,6 +959,125 @@
               }
             },
             {
+              "name": "Publicar con condiciones negociables (US09)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 201', () => pm.response.to.have.status(201));",
+                      "pm.test('expone las condiciones no negociables', () => {",
+                      "  pm.expect(pm.response.json().condicionesNoNegociables).to.eql(['mascotas']);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/publicaciones",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "publicaciones"
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenAnfitrion}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"zona\": \"Jesus Maria\",\n  \"precio\": 700,\n  \"descripcion\": \"Mascotas si, genero y servicios negociables\",\n  \"fotos\": [\n    \"https://example.com/foto2.jpg\"\n  ],\n  \"mascotasPermitidas\": true,\n  \"generoPreferido\": \"F\",\n  \"servicios\": \"agua,wifi\",\n  \"condicionesNoNegociables\": [\n    \"mascotas\"\n  ],\n  \"latitud\": -12.0866,\n  \"longitud\": -77.07\n}"
+                }
+              }
+            },
+            {
+              "name": "Buscar con condicion negociable - avisos (US09)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('status 200', () => pm.response.to.have.status(200));",
+                      "pm.test('mascotas rigidas excluyen; negociables solo avisan', () => {",
+                      "  pm.response.json().forEach(p => {",
+                      "    if (p.condicionesNoNegociables && p.condicionesNoNegociables.includes('mascotas')) {",
+                      "      pm.expect(p.mascotasPermitidas).to.eql(false);",
+                      "    }",
+                      "  });",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/publicaciones?zona=Jesus Maria&precioMin=300&precioMax=1000&mascotas=false&genero=F&servicios=wifi",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "publicaciones"
+                  ],
+                  "query": [
+                    {
+                      "key": "zona",
+                      "value": "Jesus Maria"
+                    },
+                    {
+                      "key": "precioMin",
+                      "value": "300"
+                    },
+                    {
+                      "key": "precioMax",
+                      "value": "1000"
+                    },
+                    {
+                      "key": "mascotas",
+                      "value": "false"
+                    },
+                    {
+                      "key": "genero",
+                      "value": "F"
+                    },
+                    {
+                      "key": "servicios",
+                      "value": "wifi"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tokenBuscador}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "Buscar - genero invalido (US09, 400)",
               "event": [
                 {
