@@ -66,6 +66,42 @@ describe('PublicacionCard', () => {
     expect(condiciones).toContain('Servicios incluidos: agua, wifi');
   });
 
+  it('etiqueta como negociables solo las condiciones que el anfitrión dejó fuera de la lista (US09)', () => {
+    const html = crear({
+      mascotasPermitidas: true,
+      generoPreferido: 'F',
+      servicios: 'agua',
+      condicionesNoNegociables: ['mascotas'],
+    });
+    const condiciones = html.querySelectorAll('.condiciones span');
+
+    expect(condiciones[0].textContent).toContain('Mascotas: Sí');
+    expect(condiciones[0].querySelector('.negociable')).toBeNull();
+    expect(condiciones[1].querySelector('.negociable')?.textContent).toContain('Negociable');
+    expect(condiciones[2].querySelector('.negociable')?.textContent).toContain('Negociable');
+    expect(html.querySelector('.aviso-condiciones')).toBeNull();
+  });
+
+  it('muestra el aviso de las condiciones negociables que no cumplieron la búsqueda (US09)', () => {
+    const html = crear({
+      mascotasPermitidas: true,
+      condicionesNoNegociables: [],
+      condicionesNegociablesIncumplidas: ['mascotas', 'servicios'],
+    });
+
+    expect(html.querySelector('.aviso-condiciones')?.textContent)
+      .toContain('Mascotas: no coincide con tu filtro');
+    expect(html.querySelector('.aviso-condiciones')?.textContent)
+      .toContain('Servicios: faltan servicios que pediste');
+  });
+
+  it('no muestra avisos ni etiquetas negociables en publicaciones anteriores a US09', () => {
+    const html = crear({ mascotasPermitidas: true, condicionesNoNegociables: null });
+
+    expect(html.querySelector('.negociable')).toBeNull();
+    expect(html.querySelector('.aviso-condiciones')).toBeNull();
+  });
+
   it('muestra las coordenadas de US10 cuando la publicación las tiene', () => {
     const html = crear({ latitud: -12.0464, longitud: -77.0428 });
 

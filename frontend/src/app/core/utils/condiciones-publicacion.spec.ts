@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { I18nService } from '../i18n/i18n.service';
 import { Publicacion } from '../models/publicacion.model';
 import {
-  textoCoordenadas, textoGenero, textoMascotas, textoServicios,
+  avisosCondiciones, esCondicionNegociable, textoCoordenadas, textoGenero, textoMascotas, textoServicios,
 } from './condiciones-publicacion';
 
 /** US09/US10 - Condiciones y coordenadas traducidas de una publicación. */
@@ -78,6 +78,40 @@ describe('condiciones-publicacion', () => {
     it('devuelve null si está vacío o ausente', () => {
       expect(textoServicios(publicacion({ servicios: '   ' }))).toBeNull();
       expect(textoServicios(publicacion())).toBeNull();
+    });
+  });
+
+  describe('condiciones negociables (US09)', () => {
+    it('marca como negociable solo la condición que no está en la lista de fijas', () => {
+      const p = publicacion({ condicionesNoNegociables: ['mascotas'] });
+
+      expect(esCondicionNegociable(p, 'mascotas')).toBe(false);
+      expect(esCondicionNegociable(p, 'genero')).toBe(true);
+      expect(esCondicionNegociable(p, 'servicios')).toBe(true);
+    });
+
+    it('trata null como publicación anterior a US09: todas son rígidas', () => {
+      const p = publicacion({ condicionesNoNegociables: null });
+
+      expect(esCondicionNegociable(p, 'mascotas')).toBe(false);
+      expect(esCondicionNegociable(p, 'genero')).toBe(false);
+      expect(esCondicionNegociable(p, 'servicios')).toBe(false);
+    });
+
+    it('traduce los avisos de condiciones negociables que no coincidieron', () => {
+      const p = publicacion({ condicionesNegociablesIncumplidas: ['mascotas', 'servicios'] });
+
+      expect(avisosCondiciones(p, i18n)).toEqual([
+        'Mascotas: no coincide con tu filtro',
+        'Servicios: faltan servicios que pediste',
+      ]);
+
+      i18n.setLang('en');
+      expect(avisosCondiciones(p, i18n)[0]).toBe('Pets: does not match your filter');
+    });
+
+    it('devuelve ningún aviso cuando no hay condiciones que avisar', () => {
+      expect(avisosCondiciones(publicacion(), i18n)).toEqual([]);
     });
   });
 

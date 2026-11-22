@@ -88,6 +88,7 @@ describe('PublicacionService', () => {
       mascotasPermitidas: true,
       generoPreferido: 'Any',
       servicios: 'agua,electricidad,wifi',
+      condicionesNoNegociables: ['mascotas', 'servicios'],
       latitud: -12.0971,
       longitud: -77.0353,
     };
