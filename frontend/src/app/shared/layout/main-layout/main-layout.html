@@ -5,7 +5,14 @@
     <a routerLink="/" class="inicio" [attr.aria-label]="'nav.inicio' | t"><app-brand [size]="32" /></a>
     <nav class="nav-web" [attr.aria-label]="'nav.principal' | t">
       @for (enlace of enlaces(); track enlace.ruta) {
-        <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">{{ enlace.clave | t }}</a>
+        <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page"
+           [attr.aria-label]="enlace.ruta === '/mensajes' ? etiquetaMensajes() : null">
+          @if (enlace.ruta === '/mensajes') {
+            <ng-container [ngTemplateOutlet]="iconoMensajes" />
+          }
+          <!-- Con 7 accesos (anfitrión) los nombres largos no entran en una línea: se usan los cortos -->
+          {{ (enlaces().length > 4 ? enlace.claveCorta : enlace.clave) | t }}
+        </a>
       }
     </nav>
   </div>
@@ -32,9 +39,25 @@
 
 <nav class="nav-mobile" [attr.aria-label]="'nav.principal' | t">
   @for (enlace of enlaces(); track enlace.ruta) {
-    <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page">
-      <span class="indicador"><mat-icon aria-hidden="true">{{ enlace.icono }}</mat-icon></span>
+    <a [routerLink]="enlace.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page"
+       [attr.aria-label]="enlace.ruta === '/mensajes' ? etiquetaMensajes() : null">
+      <span class="indicador">
+        @if (enlace.ruta === '/mensajes') {
+          <ng-container [ngTemplateOutlet]="iconoMensajes" />
+        } @else {
+          <mat-icon aria-hidden="true">{{ enlace.icono }}</mat-icon>
+        }
+      </span>
       <span>{{ enlace.claveCorta | t }}</span>
     </a>
   }
 </nav>
+
+<ng-template #iconoMensajes>
+  <span class="icono-mensajes" aria-hidden="true">
+    <mat-icon>chat</mat-icon>
+    @if (notificaciones.total(); as total) {
+      <span class="contador">{{ total }}</span>
+    }
+  </span>
+</ng-template>

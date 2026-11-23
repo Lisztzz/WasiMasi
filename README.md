@@ -17,9 +17,20 @@ Proyecto del curso 1ACC0236 Ingeniería de Software (UPC).
 
 ## Ejecutar todo en local
 
+El repo trae `mise.toml` con Node 24, Java 21 y Maven: corre `mise install` desde la raíz
+una vez (y `mise run frontend-install` para las dependencias). Así `npm`, `npx`, `java` y
+`mvn` funcionan sin configurar nada más.
+
 1. **Backend:** crear la base `wasimasi` en PostgreSQL y correr `WasimasiApiApplication` (detalle en `backend/README.md`). Queda en `http://localhost:8080/api`.
-2. **Web App:** `cd frontend`, `npm install` y `npx ng serve`. Queda en `http://localhost:4200`.
+2. **Web App:** `mise run frontend-serve` (o `cd frontend`, `npm install` y `npx ng serve`). Queda en `http://localhost:4200`.
 3. **Landing Page:** abrir `landing/index.html` con Live Server. Queda en `http://127.0.0.1:5500`.
+
+## Tests
+
+- Backend (JUnit 5 + Mockito): `mise run backend-test` (o `cd backend` → `mvn test`). No necesita PostgreSQL.
+- Web App (Angular + Vitest): `mise run frontend-test` (o `cd frontend` → `npx ng test --watch=false`).
+- Antes de abrir un PR conviene correr también `mise run frontend-build`.
+- La colección de Postman complementa estos tests con verificaciones manuales de la API.
 
 ## Flujo de trabajo
 

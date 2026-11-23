@@ -1,0 +1,26 @@
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+h1 { font: var(--mat-sys-headline-medium); color: var(--wm-primary); margin: 0; }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.estado {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-label-large);
+}
+.estado.ocupada { background: var(--wm-error); color: var(--wm-white); }
+.error { color: var(--wm-error); margin: 0 0 8px; }
+
+@media (max-width: 768px) {
+  h1 { font: var(--mat-sys-headline-small); }
+  .tarjetas { gap: 16px; }
+}

@@ -137,3 +137,13 @@ if (botonMenu && menu) {
     }
   });
 }
+
+// Enlaces a la Web App: en GitHub Pages la app vive en ./app/ (mismo sitio);
+// si la landing se abre en local (Live Server), apuntan a ng serve en el puerto 4200.
+(function enlacesWebApp() {
+  const local = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (!local) return;
+  document.querySelectorAll('a[data-app]').forEach((a) => {
+    a.href = 'http://localhost:4200' + a.dataset.app;
+  });
+})();

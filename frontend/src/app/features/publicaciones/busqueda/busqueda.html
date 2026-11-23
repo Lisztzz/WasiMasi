@@ -3,40 +3,74 @@
 
   <section class="wm-card filtros" [attr.aria-label]="'buscar.filtros' | t">
     <form [formGroup]="form" (ngSubmit)="buscar()" novalidate class="campos">
-      <mat-form-field appearance="outline" class="zona">
-        <mat-label>{{ 'buscar.zona' | t }}</mat-label>
-        <input matInput formControlName="zona" [matAutocomplete]="distritos" autocomplete="off" />
-        <mat-icon matPrefix aria-hidden="true">location_on</mat-icon>
-        <mat-autocomplete #distritos="matAutocomplete">
-          @for (d of sugerencias(); track d) {
-            <mat-option [value]="d">{{ d }}</mat-option>
+      <!-- Fila principal: zona, presupuesto y botón (US08) -->
+      <div class="fila-principal">
+        <mat-form-field appearance="outline" class="zona">
+          <mat-label>{{ 'buscar.zona' | t }}</mat-label>
+          <input matInput formControlName="zona" [matAutocomplete]="distritos" autocomplete="off" />
+          <mat-icon matPrefix aria-hidden="true">location_on</mat-icon>
+          <mat-autocomplete #distritos="matAutocomplete">
+            @for (d of sugerencias(); track d) {
+              <mat-option [value]="d">{{ d }}</mat-option>
+            }
+          </mat-autocomplete>
+          @if (form.controls.zona.hasError('required')) {
+            <mat-error>{{ 'val.requerido' | t }}</mat-error>
           }
-        </mat-autocomplete>
-        @if (form.controls.zona.hasError('required')) {
-          <mat-error>{{ 'val.requerido' | t }}</mat-error>
-        }
-      </mat-form-field>
+        </mat-form-field>
 
-      <div class="precios">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'buscar.min' | t }}</mat-label>
-          <input matInput type="number" min="0" formControlName="precioMin" inputmode="numeric" />
-          @if (form.controls.precioMin.invalid) {
-            <mat-error>{{ 'val.positivo' | t }}</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'buscar.max' | t }}</mat-label>
-          <input matInput type="number" min="1" formControlName="precioMax" inputmode="numeric" />
-          @if (form.controls.precioMax.invalid) {
-            <mat-error>{{ 'val.positivo' | t }}</mat-error>
-          }
-        </mat-form-field>
+        <div class="precios">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'buscar.min' | t }}</mat-label>
+            <input matInput type="number" min="0" formControlName="precioMin" inputmode="numeric" />
+            @if (form.controls.precioMin.invalid) {
+              <mat-error>{{ 'val.positivo' | t }}</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'buscar.max' | t }}</mat-label>
+            <input matInput type="number" min="1" formControlName="precioMax" inputmode="numeric" />
+            @if (form.controls.precioMax.invalid) {
+              <mat-error>{{ 'val.positivo' | t }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <button mat-flat-button type="submit" class="boton" [disabled]="cargando()">
+          <mat-icon>search</mat-icon>{{ 'buscar.boton' | t }}
+        </button>
       </div>
 
-      <button mat-flat-button type="submit" class="boton" [disabled]="cargando()">
-        <mat-icon>search</mat-icon>{{ 'buscar.boton' | t }}
-      </button>
+      <!-- US09 - Condiciones negociables/no negociables (opcionales) -->
+      <fieldset class="condiciones-bloque">
+        <legend>{{ 'buscar.condiciones' | t }}</legend>
+        <p class="ayuda-condiciones">{{ 'buscar.condicionesAyuda' | t }}</p>
+        <div class="condiciones">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'buscar.mascotas' | t }}</mat-label>
+            <mat-select formControlName="mascotas">
+              <mat-option value="">{{ 'buscar.cualquier' | t }}</mat-option>
+              <mat-option value="1">{{ 'buscar.si' | t }}</mat-option>
+              <mat-option value="0">{{ 'buscar.no' | t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'buscar.genero' | t }}</mat-label>
+            <mat-select formControlName="genero">
+              <mat-option value="">{{ 'buscar.cualquier' | t }}</mat-option>
+              <mat-option value="M">{{ 'buscar.masculino' | t }}</mat-option>
+              <mat-option value="F">{{ 'buscar.femenino' | t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>{{ 'buscar.servicios' | t }}</mat-label>
+            <input matInput formControlName="servicios" [placeholder]="'buscar.serviciosEjemplo' | t" />
+            <mat-hint>{{ 'buscar.serviciosAyuda' | t }}</mat-hint>
+          </mat-form-field>
+        </div>
+      </fieldset>
     </form>
 
     @if (form.hasError('rango') && (form.controls.precioMin.touched || form.controls.precioMax.touched)) {
@@ -65,12 +99,26 @@
         <h2>{{ textoResultados() }}</h2>
         <span>{{ 'buscar.soloActivas' | t }}</span>
       </div>
+
       @if (lista.length) {
-        <ul class="grilla">
-          @for (p of lista; track p.id) {
-            <li><app-publicacion-card [publicacion]="p" /></li>
-          }
-        </ul>
+        <div class="vistas" role="group" [attr.aria-label]="'buscar.vistas' | t">
+          <button mat-stroked-button type="button" [class.activa]="vista() === 'lista'" (click)="vista.set('lista')">
+            <mat-icon>grid_view</mat-icon>{{ 'buscar.vistaLista' | t }}
+          </button>
+          <button mat-stroked-button type="button" [class.activa]="vista() === 'mapa'" (click)="vista.set('mapa')">
+            <mat-icon>map</mat-icon>{{ 'buscar.vistaMapa' | t }}
+          </button>
+        </div>
+
+        @if (vista() === 'mapa') {
+          <app-mapa-resultados [publicaciones]="lista" />
+        } @else {
+          <ul class="grilla">
+            @for (p of lista; track p.id) {
+              <li><app-publicacion-card [publicacion]="p" /></li>
+            }
+          </ul>
+        }
       } @else {
         <div class="vacio">
           <mat-icon aria-hidden="true">search_off</mat-icon>

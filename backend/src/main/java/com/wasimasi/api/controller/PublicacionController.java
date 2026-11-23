@@ -1,7 +1,11 @@
 package com.wasimasi.api.controller;
 
+import com.wasimasi.api.dto.EditarPublicacionRequestDTO;
+import com.wasimasi.api.dto.EstadoPublicacionRequestDTO;
 import com.wasimasi.api.dto.PublicacionRequestDTO;
 import com.wasimasi.api.dto.PublicacionResponseDTO;
+import com.wasimasi.api.exception.UnauthorizedException;
+import com.wasimasi.api.dto.BusquedaRequestDTO;
 import com.wasimasi.api.service.PublicacionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +19,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * US06 - Publicar (solo rol ANFITRION), US08 - Buscar y US11 - Ver detalle
+ * US06 - Publicar (solo rol ANFITRION), US07/US18 - Gestionar, US08/US09 - Buscar, US11 - Ver detalle
+ * y US20 - registrar filtros anonimos para los reportes
  * (cualquier usuario autenticado). Todas requieren "Authorization: Bearer <token>".
  */
 @RestController
@@ -28,17 +33,59 @@ public class PublicacionController {
     @PostMapping
     public ResponseEntity<PublicacionResponseDTO> publicar(@AuthenticationPrincipal Jwt jwt,
                                                           @Valid @RequestBody PublicacionRequestDTO request) {
-        Long anfitrionId = Long.valueOf(jwt.getSubject());
-        PublicacionResponseDTO creada = publicacionService.publicar(anfitrionId, request);
+        PublicacionResponseDTO creada = publicacionService.publicar(obtenerAnfitrionId(jwt), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 
+    /** US07 - Listar las publicaciones del anfitrión autenticado. */
+    @GetMapping("/mias")
+    public List<PublicacionResponseDTO> misPublicaciones(@AuthenticationPrincipal Jwt jwt) {
+        return publicacionService.misPublicaciones(obtenerAnfitrionId(jwt));
+    }
+
+    /** US07 - Editar los datos de una publicación propia. */
+    @PutMapping("/{id}")
+    public PublicacionResponseDTO editar(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
+                                         @Valid @RequestBody EditarPublicacionRequestDTO request) {
+        return publicacionService.editar(obtenerAnfitrionId(jwt), id, request);
+    }
+
+    /** US07 y US18 - Cambiar el estado de una publicación propia. */
+    @PatchMapping("/{id}/estado")
+    public PublicacionResponseDTO cambiarEstado(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id,
+                                                @Valid @RequestBody EstadoPublicacionRequestDTO request) {
+        return publicacionService.cambiarEstado(obtenerAnfitrionId(jwt), id, request);
+    }
+
+    private long obtenerAnfitrionId(Jwt jwt) {
+        String subject = jwt.getSubject();
+        if (subject == null || subject.isBlank()) {
+            throw new UnauthorizedException("El token no contiene un usuario valido");
+        }
+
+        try {
+            return Long.parseLong(subject);
+        } catch (NumberFormatException ex) {
+            throw new UnauthorizedException("El token contiene un usuario invalido");
+        }
+    }
+
+    /** US08 + US09 - Los filtros de condiciones son opcionales (compatibles con el buscador anterior). */
     @GetMapping
     public List<PublicacionResponseDTO> buscar(
             @RequestParam String zona,
             @RequestParam(name = "precioMin") BigDecimal precioMin,
-            @RequestParam(name = "precioMax") BigDecimal precioMax) {
-        return publicacionService.buscar(zona, precioMin, precioMax);
+            @RequestParam(name = "precioMax") BigDecimal precioMax,
+            @RequestParam(name = "mascotas", required = false) Boolean mascotas,
+            @RequestParam(name = "genero", required = false) String genero,
+            @RequestParam(name = "servicios", required = false) String servicios) {
+        return publicacionService.buscar(zona, precioMin, precioMax, mascotas, genero, servicios);
+    }
+
+    /** US08/US20 - Buscar habitaciones y registrar únicamente los filtros agregados para reportes. */
+    @PostMapping("/buscar")
+    public List<PublicacionResponseDTO> buscarYRegistrar(@Valid @RequestBody BusquedaRequestDTO request) {
+        return publicacionService.buscarYRegistrar(request);
     }
 
     @GetMapping("/{id}")

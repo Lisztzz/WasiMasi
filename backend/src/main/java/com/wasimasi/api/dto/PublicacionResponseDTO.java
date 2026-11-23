@@ -1,5 +1,6 @@
 package com.wasimasi.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wasimasi.api.model.EstadoPublicacion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,30 @@ public class PublicacionResponseDTO {
     private List<String> fotos;
     private EstadoPublicacion estado;
     private LocalDateTime fechaPublicacion;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String titulo;
+
+    /** US15 - Vivienda a la que pertenece la habitacion (para el chat grupal). */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long viviendaId;
+
+    /** US09 - Condiciones negociables/no negociables. */
+    private Boolean mascotasPermitidas;
+
+    private String generoPreferido; // 'M', 'F', 'Any'
+
+    private String servicios; // Coma-separado: "agua,electricidad,wifi"
+
+    /** US09 - Condiciones rigidas elegidas por el anfitrion. Null = publicacion anterior a US09. */
+    private List<String> condicionesNoNegociables;
+
+    /** US09 - Condiciones negociables que no coinciden con la busqueda actual (solo en resultados). */
+    private List<String> condicionesNegociablesIncumplidas;
+
+    private BigDecimal latitud;
+
+    private BigDecimal longitud;
 
     /**
      * Mensaje informativo opcional, por ejemplo cuando la publicacion se

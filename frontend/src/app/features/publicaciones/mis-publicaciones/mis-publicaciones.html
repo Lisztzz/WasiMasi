@@ -1,0 +1,52 @@
+<div class="wm-page">
+  <header class="encabezado">
+    <h1>{{ 'gestion.titulo' | t }}</h1>
+    <a mat-flat-button class="wm-btn-secondary" routerLink="/publicar">
+      <mat-icon>add</mat-icon>{{ 'publicar.boton' | t }}
+    </a>
+  </header>
+
+  @if (cargando()) {
+    <p role="status">{{ 'gestion.cargando' | t }}</p>
+  } @else if (error(); as mensaje) {
+    <p class="error" role="alert">{{ mensaje }}</p>
+    <button mat-stroked-button type="button" (click)="cargar()">{{ 'gestion.reintentar' | t }}</button>
+  } @else if (!publicaciones().length) {
+    <p class="wm-card">{{ 'gestion.vacio' | t }}</p>
+  } @else {
+    <div class="tarjetas">
+      @for (p of publicaciones(); track p.id) {
+        <app-publicacion-card [publicacion]="p">
+          <span class="estado" [class.ocupada]="p.estado === 'OCUPADA'" role="status">
+            {{ ('gestion.estado.' + p.estado) | t }}
+          </span>
+          <div class="acciones">
+            <a mat-stroked-button [disabled]="pendientes()[p.id]" [routerLink]="[p.id, 'editar']">
+              <mat-icon>edit</mat-icon>{{ 'gestion.editar' | t }}
+            </a>
+            @if (p.estado === 'ACTIVA') {
+              <button mat-stroked-button type="button" [disabled]="pendientes()[p.id]" (click)="cambiarEstado(p.id, 'PAUSADA')">
+                <mat-icon>pause</mat-icon>{{ 'gestion.pausar' | t }}
+              </button>
+            } @else if (p.anfitrionVerificado) {
+              <button mat-stroked-button type="button" [disabled]="pendientes()[p.id]" (click)="cambiarEstado(p.id, 'ACTIVA')">
+                <mat-icon>play_arrow</mat-icon>{{ (p.estado === 'BORRADOR' ? 'gestion.activar' : 'gestion.reactivar') | t }}
+              </button>
+            }
+            @if (p.estado !== 'OCUPADA') {
+              <button mat-stroked-button type="button" [disabled]="pendientes()[p.id]" (click)="cambiarEstado(p.id, 'OCUPADA')">
+                <mat-icon>check</mat-icon>{{ 'gestion.marcarOcupada' | t }}
+              </button>
+            }
+          </div>
+          @if (p.estado === 'BORRADOR' && !p.anfitrionVerificado) {
+            <a routerLink="/perfil">{{ 'publicar.irPerfil' | t }}</a>
+          }
+          @if (erroresEstado()[p.id]; as mensaje) {
+            <p class="error" role="alert">{{ mensaje }}</p>
+          }
+        </app-publicacion-card>
+      }
+    </div>
+  }
+</div>

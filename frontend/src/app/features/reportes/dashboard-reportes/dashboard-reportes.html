@@ -1,0 +1,106 @@
+<div class="wm-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">{{ 'reportes.eyebrow' | t }}</p>
+      <h1>{{ 'reportes.titulo' | t }}</h1>
+      <p class="subtitulo">{{ 'reportes.subtitulo' | t }}</p>
+    </div>
+    <button mat-stroked-button type="button" (click)="cargar()" [disabled]="cargando()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>{{ 'reportes.actualizar' | t }}
+    </button>
+  </header>
+
+  @if (cargando()) {
+    <div class="cargando" role="status"><mat-spinner diameter="28" aria-hidden="true" />{{ 'reportes.cargando' | t }}</div>
+  } @else if (error(); as mensaje) {
+    <section class="wm-card error-panel" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon><p>{{ mensaje }}</p>
+      <button mat-flat-button type="button" (click)="cargar()">{{ 'reportes.reintentar' | t }}</button>
+    </section>
+  } @else {
+    <section class="indicadores" [attr.aria-label]="'reportes.resumen' | t">
+      <article class="wm-card indicador">
+        <span class="icono busquedas"><mat-icon aria-hidden="true">manage_search</mat-icon></span>
+        <div><span>{{ 'reportes.totalBusquedas' | t }}</span><strong>{{ totalBusquedas() }}</strong></div>
+      </article>
+      <article class="wm-card indicador">
+        <span class="icono oferta"><mat-icon aria-hidden="true">home_work</mat-icon></span>
+        <div><span>{{ 'reportes.totalPublicaciones' | t }}</span><strong>{{ totalPublicaciones() }}</strong></div>
+      </article>
+      <article class="wm-card indicador">
+        <span class="icono visitas"><mat-icon aria-hidden="true">event_available</mat-icon></span>
+        <div><span>{{ 'reportes.totalVisitas' | t }}</span><strong>{{ totalSolicitudes() }}</strong></div>
+      </article>
+    </section>
+
+    <div class="actualizacion"><mat-icon aria-hidden="true">schedule</mat-icon>{{ 'reportes.actualizado' | t: { hora: fechaActualizacion() } }}</div>
+
+    <div class="paneles">
+      <section class="wm-card panel" [attr.aria-label]="'reportes.porZona' | t">
+        <div class="panel-heading">
+          <div><span class="panel-icono"><mat-icon aria-hidden="true">location_on</mat-icon></span>
+            <div><h2>{{ 'reportes.porZona' | t }}</h2><p>{{ 'reportes.porZonaAyuda' | t }}</p></div>
+          </div>
+          <span class="dato-unidad">{{ 'reportes.busquedas' | t }}</span>
+        </div>
+
+        @if (!zonas().length) {
+          <div class="sin-datos"><mat-icon aria-hidden="true">query_stats</mat-icon><p>{{ 'reportes.sinDatosZona' | t }}</p></div>
+        } @else {
+          <ol class="ranking">
+            @for (zona of zonas(); track zona.zona; let i = $index) {
+              <li>
+                <div class="fila-zona">
+                  <span class="puesto">{{ i + 1 }}</span>
+                  <div class="nombre-zona"><strong>{{ zona.zona }}</strong>
+                    <div class="barra-fondo" role="img" [attr.aria-label]="'reportes.barDescription' | t: { n: zona.busquedas, zona: zona.zona }">
+                      <span class="barra busqueda" [style.width.%]="porcentaje(zona.busquedas, maxBusquedasZona())"></span>
+                    </div>
+                  </div>
+                  <strong class="numero-busquedas">{{ zona.busquedas }}</strong>
+                </div>
+                <div class="datos-zona">
+                  <span><mat-icon aria-hidden="true">home</mat-icon>{{ 'reportes.publicaciones' | t: { n: zona.publicacionesActivas } }}</span>
+                  <span><mat-icon aria-hidden="true">event</mat-icon>{{ 'reportes.solicitudes' | t: { n: zona.solicitudesVisita } }}</span>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      <section class="wm-card panel" [attr.aria-label]="'reportes.porPrecio' | t">
+        <div class="panel-heading">
+          <div><span class="panel-icono precio"><mat-icon aria-hidden="true">payments</mat-icon></span>
+            <div><h2>{{ 'reportes.porPrecio' | t }}</h2><p>{{ 'reportes.porPrecioAyuda' | t }}</p></div>
+          </div>
+          <span class="dato-unidad">{{ 'reportes.busquedas' | t }}</span>
+        </div>
+
+        @if (!rangos().length) {
+          <div class="sin-datos"><mat-icon aria-hidden="true">query_stats</mat-icon><p>{{ 'reportes.sinDatosPrecio' | t }}</p></div>
+        } @else {
+          <ol class="ranking precios">
+            @for (rango of rangos(); track rango.precioMin + '-' + rango.precioMax; let i = $index) {
+              <li>
+                <div class="fila-zona">
+                  <span class="puesto">{{ i + 1 }}</span>
+                  <div class="nombre-zona"><strong>{{ moneda(rango.precioMin) }} – {{ moneda(rango.precioMax) }}</strong>
+                    <div class="barra-fondo" role="img" [attr.aria-label]="'reportes.barDescriptionPrice' | t: { n: rango.busquedas }">
+                      <span class="barra precio" [style.width.%]="porcentaje(rango.busquedas, maxBusquedasRango())"></span>
+                    </div>
+                  </div>
+                  <strong class="numero-busquedas">{{ rango.busquedas }}</strong>
+                </div>
+                <div class="datos-zona">
+                  <span><mat-icon aria-hidden="true">home</mat-icon>{{ 'reportes.publicacionesEnRango' | t: { n: rango.publicacionesActivas } }}</span>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+    </div>
+    <p class="nota-datos"><mat-icon aria-hidden="true">info</mat-icon>{{ 'reportes.notaDatos' | t }}</p>
+  }
+</div>
