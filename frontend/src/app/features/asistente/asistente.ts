@@ -29,6 +29,23 @@ interface Turno {
 }
 
 const MAX_MENSAJE = 1000;
+
+/** Trozo de una respuesta: el modelo marca con **texto** lo que quiere resaltar. */
+export interface Parte {
+  texto: string;
+  negrita: boolean;
+}
+
+/**
+ * Convierte el formato mínimo del modelo (**negrita**) en partes que Angular pinta
+ * como texto. No se usa innerHTML: así nunca se interpreta HTML que venga del modelo.
+ */
+export function partesDeRespuesta(texto: string): Parte[] {
+  return texto
+    .split(/\*\*(.+?)\*\*/g)
+    .map((t, i) => ({ texto: t, negrita: i % 2 === 1 }))
+    .filter((p) => p.texto.length > 0);
+}
 const TURNOS_DE_CONTEXTO = 10;
 
 /** US21 - Consultar al agente de IA en lenguaje natural. US22 - Confirmar la acción que propone. */
@@ -59,6 +76,7 @@ export class Asistente {
     validators: [Validators.required, Validators.maxLength(MAX_MENSAJE)],
   });
 
+  protected readonly partes = partesDeRespuesta;
   protected readonly sugerencias = ['asistente.sugerencia1', 'asistente.sugerencia2', 'asistente.sugerencia3'];
   private siguienteId = 1;
 

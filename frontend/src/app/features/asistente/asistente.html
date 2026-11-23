@@ -29,7 +29,7 @@
     @for (turno of turnos(); track turno.id) {
       <article class="turno" [class.usuario]="turno.rol === 'USUARIO'" [class.error]="turno.error">
         <span class="sr-only">{{ (turno.rol === 'USUARIO' ? 'asistente.tu' : 'asistente.wasi') | t }}:</span>
-        <p class="burbuja">{{ turno.texto }}</p>
+        <p class="burbuja">@for (parte of partes(turno.texto); track $index) {@if (parte.negrita) {<strong>{{ parte.texto }}</strong>} @else {{{ parte.texto }}}}</p>
 
         @if (turno.publicaciones?.length) {
           <div class="resultados">

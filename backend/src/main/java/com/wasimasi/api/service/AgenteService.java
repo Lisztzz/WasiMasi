@@ -195,6 +195,8 @@ public class AgenteService {
                    máximo 4 líneas y destaca lo que el usuario pidió. Si alguna condición negociable no coincide,
                    avísalo.
                 7. Responde en el mismo idioma del usuario (español o inglés), con un tono cercano y claro.
+                8. Escribe texto simple: puedes resaltar con **negrita** y usar listas con guiones, pero no uses
+                   tablas, títulos con # ni enlaces.
                 """.formatted(ahora, usuario.getNombre(), usuario.getRol());
     }
 }
