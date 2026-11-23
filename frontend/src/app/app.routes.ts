@@ -79,6 +79,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/mensajes/conversacion/conversacion').then((m) => m.Conversacion),
       },
       {
+        path: 'asistente',
+        title: 'Asistente WasiMasi · WasiMasi',
+        loadComponent: () => import('./features/asistente/asistente').then((m) => m.Asistente),
+      },
+      {
         path: 'perfil',
         title: 'Mi perfil · WasiMasi',
         loadComponent: () => import('./features/perfil/perfil').then((m) => m.Perfil),

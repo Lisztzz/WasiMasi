@@ -8,9 +8,8 @@ mat-form-field.con-ayuda { margin-bottom: 16px; }
 
 .fotos, .extras { border: 0; padding: 0; margin: 4px 0 0; min-width: 0; }
 legend { font: var(--mat-sys-title-medium); color: var(--wm-primary); margin-bottom: 12px; padding: 0; }
-.campos-extra { display: flex; gap: 12px; flex-wrap: wrap; }
-.campos-extra mat-form-field { min-width: 160px; flex: 1; }
-.condiciones-fijas { max-width: 520px; }
+.campos-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: start; }
+.condiciones-fijas { width: 100%; margin-top: 4px; }
 .error-texto { margin: 0; color: var(--wm-error); font: var(--mat-sys-body-small); }
 .miniaturas { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .miniaturas li {

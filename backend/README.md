@@ -54,6 +54,34 @@ habitacion), **US08** (buscar por zona/presupuesto) y **US11** (ver detalle).
 - La clave de firma se configura con la variable de entorno `WASIMASI_JWT_SECRET`
   (minimo 32 caracteres). Si no se define, se usa una clave de desarrollo.
 
+## Agente de IA (US21 y US22)
+
+El asistente usa **Spring AI** (`spring-ai-starter-model-openai` 2.1) contra **Groq**, que
+ofrece una API compatible con OpenAI. El modelo puede llamar a tres herramientas que usan
+los services reales del backend (*tool calling*):
+
+| Herramienta | Que hace |
+|---|---|
+| `buscarHabitaciones` | Busca publicaciones activas por zona, presupuesto y condiciones (US08/US09) |
+| `verHabitacion` | Lee el detalle de una publicacion (US11) |
+| `proponerVisita` | Guarda una **propuesta** de visita en estado `PENDIENTE`; no crea la visita |
+
+La visita solo se crea cuando el usuario llama a `POST /api/agente/acciones/{id}/confirmar`
+(US22). Las propuestas vencen a los 30 minutos y no se pueden ejecutar dos veces.
+
+Configuracion (variables de entorno, nunca en el repositorio):
+
+- `GROQ_API_KEY`: clave de https://console.groq.com. Sin ella el backend arranca igual
+  y `POST /api/agente/consultas` responde 503 con un mensaje claro.
+- `WASIMASI_IA_MODELO` (opcional): por defecto `openai/gpt-oss-120b` (Groq retiró `llama-3.3-70b-versatile`).
+- `WASIMASI_IA_BASE_URL` (opcional): por defecto `https://api.groq.com/openai/v1`.
+
+| Metodo | Ruta | US | Acceso |
+|---|---|---|---|
+| POST | `/api/agente/consultas` | US21 | Autenticado |
+| POST | `/api/agente/acciones/{id}/confirmar` | US22 | BUSCADOR (dueño de la propuesta) |
+| POST | `/api/agente/acciones/{id}/cancelar` | US22 | BUSCADOR (dueño de la propuesta) |
+
 ## Endpoints (primera version)
 
 | Metodo | Ruta | US | Acceso | Descripcion |

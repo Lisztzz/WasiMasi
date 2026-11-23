@@ -56,7 +56,7 @@ describe('condiciones-publicacion', () => {
     it('traduce M, F y Any (US09)', () => {
       expect(textoGenero(publicacion({ generoPreferido: 'M' }), i18n)).toBe('Masculino');
       expect(textoGenero(publicacion({ generoPreferido: 'F' }), i18n)).toBe('Femenino');
-      expect(textoGenero(publicacion({ generoPreferido: 'Any' }), i18n)).toBe('Cualquier');
+      expect(textoGenero(publicacion({ generoPreferido: 'Any' }), i18n)).toBe('Cualquiera');
     });
 
     it('devuelve null cuando no hay preferencia', () => {
