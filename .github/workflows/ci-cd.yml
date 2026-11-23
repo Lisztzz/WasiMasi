@@ -1,0 +1,109 @@
+# CI/CD de WasiMasi
+# - En cada push o pull request a develop/main: compila y prueba el backend y la Web App.
+# - En cada push a main (release): despliega
+#     * Web Services  -> Render (deploy hook)
+#     * Web App + Landing Page -> GitHub Pages (landing en /, Web App en /app/)
+name: CI/CD WasiMasi
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend - compilar y probar (Spring Boot)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Tests unitarios y empaquetado del JAR
+        run: mvn -B verify
+
+  frontend:
+    name: Web App - probar y compilar (Angular)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Tests unitarios (Vitest)
+        run: npx ng test --watch=false
+      - name: Build de producción para GitHub Pages
+        run: npx ng build --base-href /WasiMasi/app/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: frontend/dist/frontend/browser
+
+  deploy-backend:
+    name: Desplegar Web Services en Render
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar el despliegue (deploy hook de Render)
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "::error::Falta el secreto RENDER_DEPLOY_HOOK_URL (Settings > Secrets and variables > Actions)"
+            exit 1
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+
+  deploy-pages:
+    name: Desplegar Web App y Landing en GitHub Pages
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: sitio/app
+      - name: Armar el sitio (landing en la raíz, Web App en /app/)
+        run: |
+          cp -r landing/. sitio/
+          rm -f sitio/README.md
+          # GitHub Pages no conoce las rutas de Angular (/app/buscar, /app/login...): para cualquier ruta
+          # que no existe sirve /404.html, así que ese archivo es la propia Web App y su router decide.
+          cp sitio/app/index.html sitio/404.html
+          touch sitio/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: sitio
+      - name: Publicar
+        id: despliegue
+        uses: actions/deploy-pages@v4

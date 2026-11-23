@@ -1,4 +1,6 @@
 server:
+  # En Render el puerto llega en la variable PORT; en local se usa 8080.
+  port: ${PORT:8080}
   servlet:
     context-path: /api
 
@@ -24,7 +26,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${WASIMASI_SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
