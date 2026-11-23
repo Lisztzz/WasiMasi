@@ -73,7 +73,7 @@ Configuracion (variables de entorno, nunca en el repositorio):
 
 - `GROQ_API_KEY`: clave de https://console.groq.com. Sin ella el backend arranca igual
   y `POST /api/agente/consultas` responde 503 con un mensaje claro.
-- `WASIMASI_IA_MODELO` (opcional): por defecto `llama-3.3-70b-versatile`.
+- `WASIMASI_IA_MODELO` (opcional): por defecto `openai/gpt-oss-120b` (Groq retiró `llama-3.3-70b-versatile`).
 - `WASIMASI_IA_BASE_URL` (opcional): por defecto `https://api.groq.com/openai/v1`.
 
 | Metodo | Ruta | US | Acceso |

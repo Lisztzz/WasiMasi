@@ -16,8 +16,11 @@ spring:
       api-key: ${GROQ_API_KEY:sin-configurar}
       base-url: ${WASIMASI_IA_BASE_URL:https://api.groq.com/openai/v1}
       chat:
-        model: ${WASIMASI_IA_MODELO:llama-3.3-70b-versatile}
+        # Modelo con buen manejo de herramientas en Groq (llama-3.3-70b-versatile fue retirado).
+        model: ${WASIMASI_IA_MODELO:openai/gpt-oss-120b}
         temperature: 0.2
+        # gpt-oss devuelve su razonamiento; Groq rechaza que se le reenvíe en el historial (HTTP 400).
+        replay-reasoning-content: false
   jpa:
     hibernate:
       ddl-auto: update
